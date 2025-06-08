@@ -1,5 +1,13 @@
-- name: Publish Module to PowerShell Gallery
-  uses: pcgeek86/publish-powershell-module-action@v20
-  id: publish-module
-  with:
-    NuGetApiKey: ${{ secrets.PS_GALLERY_KEY }}
+name: Publish Module to PowerShell Gallery
+on:
+  push:
+    branches:
+      - main
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+    - uses: pcgeek86/publish-powershell-module-action@v20
+      id: publish-module
+      with:
+        NuGetApiKey: ${{ secrets.PS_GALLERY_KEY }}
