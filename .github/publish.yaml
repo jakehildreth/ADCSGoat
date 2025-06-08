@@ -1,0 +1,34 @@
+name: Publish Module
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      # Get the current version
+      - uses: actions/checkout@v3
+      - name: Install and cache PowerShell modules
+        id: psmodulecache
+        uses: potatoqualitee/psmodulecache@v4.5
+        with:
+          modules-to-cache: BuildHelpers
+      - shell: pwsh
+        # Give an id to the step, so we can reference it later
+        id: check_if_versions_bumped
+        run: |
+          [version]$GalleryVersion = Get-NextNugetPackageVersion -Name RPGDice -ErrorAction Stop
+          [version]$GithubVersion = Get-MetaData -Path ./RPGDice/RPGDice.psd1 -PropertyName ModuleVersion -ErrorAction Stop
+          $bumped = $GithubVersion -ge $GalleryVersion
+
+          # Set the output named "version_bumped"
+          Write-Host "::set-output name=version_bumped::$bumped"
+
+      - name: Publish to PSGallery
+        shell: pwsh
+        if: steps.check_if_versions_bumped.outputs.version_bumped == 'True'
+        env:
+          PSGALLERY_API_KEY: ${{ secrets.PS_GALLERY_KEY }}
+        run: ./build.ps1 -Task Publish -Bootstrap
