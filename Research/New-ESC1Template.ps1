@@ -1,0 +1,1 @@
+New-ADObject -Description 'ESC1' -DisplayName 'ESC1' -Name 'ESC1' -Path 'CN=Certificate Templates,CN=Public Key Services,CN=Services,CN=Configuration,DC=horse,DC=lab' -Type 'pKICertificateTemplate'
