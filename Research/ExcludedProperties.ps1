@@ -1,0 +1,17 @@
+$ExcludedProperties = @(
+    'CanonicalName'
+    'CN'
+    'Created'
+    'createTimeStamp'
+    'Description'
+    'DisplayName'
+    'DistinguishedName'
+    'Modified'
+    'modifyTimeStamp'
+    'Name'
+    'ObjectGUID'
+    'uSNChanged'
+    'uSNCreated'
+    'whenChanged'
+    'whenCreated'
+)
