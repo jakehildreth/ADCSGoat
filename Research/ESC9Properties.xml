@@ -1,0 +1,110 @@
+<Objs Version="1.1.0.1" xmlns="http://schemas.microsoft.com/powershell/2004/04">
+  <Obj RefId="0">
+    <TN RefId="0">
+      <T>System.Collections.Hashtable</T>
+      <T>System.Object</T>
+    </TN>
+    <DCT>
+      <En>
+        <S N="Key">pKIOverlapPeriod</S>
+        <BA N="Value">AICmCv/e//8=</BA>
+      </En>
+      <En>
+        <S N="Key">pKIDefaultCSPs</S>
+        <Obj N="Value" RefId="1">
+          <TN RefId="1">
+            <T>System.Object[]</T>
+            <T>System.Array</T>
+            <T>System.Object</T>
+          </TN>
+          <LST>
+            <S>2,Microsoft Base Cryptographic Provider v1.0</S>
+            <S>1,Microsoft Enhanced Cryptographic Provider v1.0</S>
+          </LST>
+        </Obj>
+      </En>
+      <En>
+        <S N="Key">msPKI-Enrollment-Flag</S>
+        <I32 N="Value">524329</I32>
+      </En>
+      <En>
+        <S N="Key">msPKI-Template-Schema-Version</S>
+        <I32 N="Value">2</I32>
+      </En>
+      <En>
+        <S N="Key">pKICriticalExtensions</S>
+        <S N="Value">2.5.29.15</S>
+      </En>
+      <En>
+        <S N="Key">pKIDefaultKeySpec</S>
+        <I32 N="Value">1</I32>
+      </En>
+      <En>
+        <S N="Key">msPKI-Template-Minor-Revision</S>
+        <I32 N="Value">2</I32>
+      </En>
+      <En>
+        <S N="Key">msPKI-RA-Signature</S>
+        <I32 N="Value">0</I32>
+      </En>
+      <En>
+        <S N="Key">revision</S>
+        <I32 N="Value">100</I32>
+      </En>
+      <En>
+        <S N="Key">pKIMaxIssuingDepth</S>
+        <I32 N="Value">0</I32>
+      </En>
+      <En>
+        <S N="Key">msPKI-Cert-Template-OID</S>
+        <S N="Value">1.3.6.1.4.1.311.21.8.4872519.969661.15616387.15184524.2635045.52.4630692.7891476</S>
+      </En>
+      <En>
+        <S N="Key">pKIExpirationPeriod</S>
+        <BA N="Value">AEA5hy7h/v8=</BA>
+      </En>
+      <En>
+        <S N="Key">msPKI-Minimal-Key-Size</S>
+        <I32 N="Value">2048</I32>
+      </En>
+      <En>
+        <S N="Key">pKIExtendedKeyUsage</S>
+        <Obj N="Value" RefId="2">
+          <TNRef RefId="1" />
+          <LST>
+            <S>1.3.6.1.5.5.7.3.2</S>
+            <S>1.3.6.1.5.5.7.3.4</S>
+            <S>1.3.6.1.4.1.311.10.3.4</S>
+          </LST>
+        </Obj>
+      </En>
+      <En>
+        <S N="Key">msPKI-Certificate-Application-Policy</S>
+        <Obj N="Value" RefId="3">
+          <TNRef RefId="1" />
+          <LST>
+            <S>1.3.6.1.5.5.7.3.2</S>
+            <S>1.3.6.1.5.5.7.3.4</S>
+            <S>1.3.6.1.4.1.311.10.3.4</S>
+          </LST>
+        </Obj>
+      </En>
+      <En>
+        <S N="Key">msPKI-Certificate-Name-Flag</S>
+        <I32 N="Value">-1509949440</I32>
+      </En>
+      <En>
+        <S N="Key">flags</S>
+        <I32 N="Value">131642</I32>
+      </En>
+      <En>
+        <S N="Key">msPKI-Private-Key-Flag</S>
+        <I32 N="Value">16842768</I32>
+      </En>
+      <En>
+        <S N="Key">pKIKeyUsage</S>
+        <BA N="Value">oAA=</BA>
+      </En>
+    </DCT>
+  </Obj>
+</Objs>
