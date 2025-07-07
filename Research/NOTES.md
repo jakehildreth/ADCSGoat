@@ -20,18 +20,33 @@
 [EnrollmentFlags](9)
 ```
 
-Preparation:
-1. Create example templates using MA's script. 
-    * Naming convention: Example-[VulnType]-[AdditionalInfo]
-1. Manually modify example templates as needed.
-1. Create blank template object using scripted New-ADObject.
-    * Naming convention: [VulnType]-[AdditionalInfo]
-1. Capture differences between example and blank templates and export to CliXML.
-    * Naming convention: [VulnType]-[AdditionalInfo].xml
+New-LocksmithLab
+1. ~~Write script using AL~~
+1. Modularize https://gist.github.com/jakehildreth/d7e00d2d342896caab3d27d0344280f7
+
+~~Preparation:~~
+1. ~~Create example templates using MA's script.~~
+    ~~* Naming convention: Example-[VulnType]-[AdditionalInfo]~~
+1. ~~Manually modify example templates as needed.~~
+1. ~~Create blank template object using scripted New-ADObject.~~
+    ~~* Naming convention: [VulnType]-[AdditionalInfo]~~
+1. ~~Capture differences between example and blank templates and export to CliXML.~~
+    ~~* Naming convention: [VulnType]-[AdditionalInfo].xml~~
 
 Deploy:
-1. Create blank template object using scripted New-ADObject.
-    * Naming convention: [VulnType]-[AdditionalInfo]
-1. Grant Authenticated Users `Enroll` on new template objects.
+1. Create blank template object using scripted New-ADObject using naming convention: [VulnType]-[AdditionalInfo]
+    * ESC1
+    * ESC2
+    * ESC3c1
+    * ESC3c2
+    * ESC4
+    * ESC9
+1. Grant Authenticated Users `Enroll` on new template objects except ESC4 template.
+1. Grant Authenticated Users `GenericAll` on ESC4 template.
 1. Import difference object from CliXML.
-1. Apply difference object to blank template object. 
+1. Apply difference object to blank template object.
+1. Apply misconfigurations to CA:
+    * ESC6
+    * ESC7 (ACLs?)
+    * ESC8 (Enable Windows Feature?)
+    * ESC11
