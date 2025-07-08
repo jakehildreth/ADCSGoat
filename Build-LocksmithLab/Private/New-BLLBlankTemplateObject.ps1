@@ -3,6 +3,7 @@ function New-BLLBlankTemplateObject {
     param (
         [Parameter(ValueFromPipeline)]
         # TODO Add input validation to $TemplateName and $name
+        # TODO Generisize to create any objectClass in any location
         [string[]]$TemplateName
     )
 
