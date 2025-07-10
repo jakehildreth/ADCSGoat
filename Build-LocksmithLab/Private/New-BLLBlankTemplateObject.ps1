@@ -1,7 +1,7 @@
 function New-BLLBlankTemplateObject {
     [CmdletBinding()]
     param (
-        [Parameter(ValueFromPipeline)]
+        [Parameter(ValueFromPipeline, Mandatory)]
         # TODO Add input validation to $TemplateName and $name
         # TODO Generisize to create any objectClass in any location
         [string[]]$TemplateName
@@ -27,7 +27,7 @@ function New-BLLBlankTemplateObject {
                     $newTemplate.CommitChanges()
                     $success = $true
                 } catch {
-                    Write-Error "That template name ($name) is already is invalid. Please enter a new name."
+                    Write-Error "That template name ($name) is invalid. Please enter a new name."
                     $name = Read-Host -Prompt 'New Template Name'
                 }
             }
