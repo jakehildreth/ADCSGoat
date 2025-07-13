@@ -12,7 +12,7 @@
 RootModule = 'Build-LocksmithLab.psm1'
 
 # Version number of this module.
-ModuleVersion = '0.2.1-prerelease'
+ModuleVersion = '0.2.1'
 
 # Supported PSEditions
 # CompatiblePSEditions = @()
@@ -24,16 +24,16 @@ GUID = '9febf038-d9cc-40d2-915a-5a51f26b78e3'
 Author = 'Jake Hildreth'
 
 # Company or vendor of this module
-CompanyName = 'Unknown'
+CompanyName = 'Gilmour Technologies Ltd'
 
 # Copyright statement for this module
-Copyright = '(c) Jake Hildreth. All rights reserved.'
+Copyright = '(c) 2025 Jake Hildreth. All rights reserved.'
 
 # Description of the functionality provided by this module
 Description = 'A tiny module built for a single purpose: building a small and very insecure AD CS lab.'
 
 # Minimum version of the PowerShell engine required by this module
-# PowerShellVersion = ''
+PowerShellVersion = '5.1'
 
 # Name of the PowerShell host required by this module
 # PowerShellHostName = ''
@@ -110,7 +110,7 @@ PrivateData = @{
         # ReleaseNotes = ''
 
         # Prerelease string of this module
-        # Prerelease = ''
+        Prerelease = 'prerelease'
 
         # Flag to indicate whether the module requires explicit user acceptance for install/update/save
         # RequireLicenseAcceptance = $false
