@@ -1,6 +1,6 @@
 ---
-external help file: Build-LocksmithLab-help.xml
-Module Name: Build-LocksmithLab
+external help file: ADCSGoat-help.xml
+Module Name: ADCSGoat
 online version:
 schema: 2.0.0
 ---

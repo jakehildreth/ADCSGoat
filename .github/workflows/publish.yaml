@@ -18,8 +18,8 @@ jobs:
         # Give an id to the step, so we can reference it later
         id: check_if_versions_bumped
         run: |
-          [version]$GalleryVersion = Get-NextNugetPackageVersion -Name Build-LocksmithLab -ErrorAction Stop
-          [version]$GithubVersion = Get-MetaData -Path ./Build-LocksmithLab/Build-LocksmithLab.psd1 -PropertyName ModuleVersion -ErrorAction Stop
+          [version]$GalleryVersion = Get-NextNugetPackageVersion -Name ADCSGoat -ErrorAction Stop
+          [version]$GithubVersion = Get-MetaData -Path ./ADCSGoat/ADCSGoat.psd1 -PropertyName ModuleVersion -ErrorAction Stop
           $bumped = $GithubVersion -ge $GalleryVersion
 
           # Set the output named "version_bumped"
