@@ -1,6 +1,6 @@
 # How to contribute
 
-Contributions to Build-LocksmithLab are highly encouraged and desired.
+Contributions to ADCSGoat are highly encouraged and desired.
 Below are some guidelines that will help make the process as smooth as possible.
 
 ## Getting Started
@@ -13,7 +13,7 @@ Below are some guidelines that will help make the process as smooth as possible.
 
 ## Suggesting Enhancements
 
-I want to know what you think is missing from Build-LocksmithLab and how it can be made better.
+I want to know what you think is missing from ADCSGoat and how it can be made better.
 
 - When submitting an issue for an enhancement, please be as clear as possible about why you think the enhancement is needed and what the benefit of it would be.
 
