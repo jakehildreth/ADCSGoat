@@ -1,10 +1,10 @@
-function Set-BLLTemplateProperty {
+function Set-AdcsGoatTemplateProperty {
     [CmdletBinding()]
     param (
         [Parameter(ValueFromPipeline, Mandatory)]
         [string]$TemplateName,
         [Parameter(ValueFromPipeline, Mandatory)]
-        [hashtable]$properties
+        [hashtable]$Properties
     )
 
     begin {
@@ -21,7 +21,7 @@ function Set-BLLTemplateProperty {
 
         try {
             # Apply $Properties to the object
-            foreach ($property in $properties.GetEnumerator()) {
+            foreach ($property in $Properties.GetEnumerator()) {
                 # Each $property could be of a different type, and each type has to be applied differently.
                 if ($property.Value -is [System.Collections.ICollection] -and $property.Value -isnot [byte[]]) {
                     # Handle different collection types (ArrayList, Array, etc.), but not byte arrays
