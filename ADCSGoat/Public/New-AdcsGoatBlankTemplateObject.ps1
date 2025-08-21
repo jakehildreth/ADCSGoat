@@ -1,4 +1,4 @@
-function New-BLLBlankTemplateObject {
+function New-AdcsGoatBlankTemplateObject {
     [CmdletBinding()]
     param (
         [Parameter(ValueFromPipeline, Mandatory)]

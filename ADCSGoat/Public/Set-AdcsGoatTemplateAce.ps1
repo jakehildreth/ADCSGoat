@@ -1,4 +1,4 @@
-function Set-BLLTemplateAce {
+function Set-AdcsGoatTemplateAce {
     [CmdletBinding()]
     param (
         [Parameter(ValueFromPipeline, Mandatory)]
@@ -37,7 +37,7 @@ function Set-BLLTemplateAce {
 
         # Define Access Control Type for use in ACEs
         $Allow = [System.Security.AccessControl.AccessControlType]::Allow
-        $Deny = [System.Security.AccessControl.AccessControlType]::Deny
+        # $Deny = [System.Security.AccessControl.AccessControlType]::Deny
 
         $AccessRule = switch -Regex ($AceType) {
             'Enroll' {
