@@ -22,7 +22,7 @@ function Deploy-AdcsGoat {
 
     # We need to grant low privileged users control over blank template objects to turn them into ESC issues.
     $TemplateNames | ForEach-Object {
-        Set-AdcsGoatTemplateAce -TemplateName $_ -AceType GenericAll
+        Set-AdcsGoatTemplateAce -TemplateName $_ -AceType Enroll
     }
 }
 
