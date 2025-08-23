@@ -7,5 +7,5 @@ function Set-AGEnrollmentServiceFullName {
         [string]$EnrollmentServiceFullName
     )
 
-    "$($EnrollmentService.dNSHostName)\$($EnrollmentService.name)"
+    $EnrollmentService | Add-Member -NotePropertyName 'FullName' -NotePropertyValue $EnrollmentServiceFullName -Force
 }
