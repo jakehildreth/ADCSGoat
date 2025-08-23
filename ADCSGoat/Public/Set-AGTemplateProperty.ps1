@@ -1,4 +1,4 @@
-function Set-AdcsGoatTemplateProperty {
+function Set-AGTemplateProperty {
     [CmdletBinding()]
     param (
         [Parameter(ValueFromPipeline, Mandatory)]

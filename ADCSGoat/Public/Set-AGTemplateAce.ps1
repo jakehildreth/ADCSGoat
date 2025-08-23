@@ -1,4 +1,4 @@
-function Set-AdcsGoatTemplateAce {
+function Set-AGTemplateAce {
     [CmdletBinding()]
     param (
         [Parameter(ValueFromPipeline, Mandatory)]
@@ -20,7 +20,7 @@ function Set-AdcsGoatTemplateAce {
         # Define principals for use in ACEs
         # $Administrators = New-Object System.Security.Principal.SecurityIdentifier('S-1-5-32-544')
         $AuthenticatedUsers = New-Object System.Security.Principal.SecurityIdentifier('S-1-5-11')
-        
+
         # Define Active Directory Rights for use in ACEs
         $ExtendedRight = [System.DirectoryServices.ActiveDirectoryRights]::ExtendedRight
         $GenericAll = [System.DirectoryServices.ActiveDirectoryRights]::GenericAll
@@ -45,7 +45,7 @@ function Set-AdcsGoatTemplateAce {
                     New-Object System.DirectoryServices.ActiveDirectoryAccessRule $AuthenticatedUsers, $ExtendedRight, $Allow, $EnrollGUID
                     New-Object System.DirectoryServices.ActiveDirectoryAccessRule $AuthenticatedUsers, $GenericRead, $Allow, $AllPropertiesGUID
                 )
-            } 
+            }
             'FullControl|GenericAll' {
                 New-Object System.DirectoryServices.ActiveDirectoryAccessRule $AuthenticatedUsers, $GenericAll, $Allow, $AllPropertiesGUID
             }
@@ -59,7 +59,7 @@ function Set-AdcsGoatTemplateAce {
         Write-Output $TemplateName -PipelineVariable name | ForEach-Object {
             $success = $false
             $TemplateObject = New-Object System.DirectoryServices.DirectoryEntry("LDAP://CN=$name,$TemplateContainer")
-            
+
             while (-not $success) {
                 # Get the current ACL
                 $ACL = try {
@@ -67,7 +67,7 @@ function Set-AdcsGoatTemplateAce {
                 } catch {
                     throw "Could not collect ACL from $name (CN=$name,$TemplateContainer). Do you have rights to read the template object?"
                 }
-                
+
                 # Add each access rule to the ACL
                 Write-Output $AccessRule -PipelineVariable ace | ForEach-Object {
                     $ACL.AddAccessRule($ace)

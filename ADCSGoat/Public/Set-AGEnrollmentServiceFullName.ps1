@@ -1,10 +1,10 @@
-function Set-AdcsGoatEnrollmentServiceFullName {
+function Set-AGEnrollmentServiceFullName {
     param (
         [Parameter(Mandatory)]
         [ValidateScript({ $_.objectClass -eq 'pKIEnrollmentService' })]
         [System.DirectoryServices.DirectoryEntry]$EnrollmentService,
         [Parameter(Mandatory)]
-        [string]$EnrollmentServiceFullName 
+        [string]$EnrollmentServiceFullName
     )
 
     "$($EnrollmentService.dNSHostName)\$($EnrollmentService.name)"
