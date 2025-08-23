@@ -5,7 +5,7 @@ online version:
 schema: 2.0.0
 ---
 
-# Get-AdcsGoatEnrollmentServiceFullName
+# New-AGBlankTemplateObject
 
 ## SYNOPSIS
 {{ Fill in the Synopsis }}
@@ -13,7 +13,7 @@ schema: 2.0.0
 ## SYNTAX
 
 ```
-Get-AdcsGoatEnrollmentServiceFullName [-EnrollmentService] <DirectoryEntry> [<CommonParameters>]
+New-AGBlankTemplateObject [-TemplateName] <String[]> [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -30,18 +30,18 @@ PS C:\> {{ Add example code here }}
 
 ## PARAMETERS
 
-### -EnrollmentService
-{{ Fill EnrollmentService Description }}
+### -TemplateName
+{{ Fill TemplateName Description }}
 
 ```yaml
-Type: DirectoryEntry
+Type: String[]
 Parameter Sets: (All)
 Aliases:
 
 Required: True
 Position: 0
 Default value: None
-Accept pipeline input: False
+Accept pipeline input: True (ByValue)
 Accept wildcard characters: False
 ```
 
@@ -50,7 +50,7 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 
 ## INPUTS
 
-### None
+### System.String[]
 
 ## OUTPUTS
 
