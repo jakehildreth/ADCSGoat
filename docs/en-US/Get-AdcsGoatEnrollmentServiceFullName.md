@@ -1,46 +1,46 @@
 ---
-external help file: Build-LocksmithLab-help.xml
-Module Name: Build-LocksmithLab
+external help file: ADCSGoat-help.xml
+Module Name: ADCSGoat
 online version:
 schema: 2.0.0
 ---
 
-# Get-HelloWorld
+# Get-AdcsGoatEnrollmentServiceFullName
 
 ## SYNOPSIS
-Returns Hello world
+{{ Fill in the Synopsis }}
 
 ## SYNTAX
 
 ```
-Get-HelloWorld [[-Value] <String>] [<CommonParameters>]
+Get-AdcsGoatEnrollmentServiceFullName [-EnrollmentService] <DirectoryEntry> [<CommonParameters>]
 ```
 
 ## DESCRIPTION
-Returns Hello world
+{{ Fill in the Description }}
 
 ## EXAMPLES
 
-### EXAMPLE 1
-```
-Get-HelloWorld
+### Example 1
+```powershell
+PS C:\> {{ Add example code here }}
 ```
 
-Runs the command
+{{ Add example description here }}
 
 ## PARAMETERS
 
-### -Value
-Parameter description can go here or above in format: .PARAMETER  \<Parameter-Name\>
+### -EnrollmentService
+{{ Fill EnrollmentService Description }}
 
 ```yaml
-Type: String
+Type: DirectoryEntry
 Parameter Sets: (All)
 Aliases:
 
-Required: False
-Position: 1
-Default value: GetHelloWorld
+Required: True
+Position: 0
+Default value: None
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -50,9 +50,11 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 
 ## INPUTS
 
+### None
+
 ## OUTPUTS
 
-### System.String
+### System.Object
 ## NOTES
 
 ## RELATED LINKS
