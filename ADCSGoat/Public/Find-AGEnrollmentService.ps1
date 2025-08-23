@@ -1,4 +1,4 @@
-function Find-AdcsGoatEnrollmentService {
+function Find-AGEnrollmentService {
     # Get the Configuration partition automatically via RootDSE
     $RootDSE = New-Object System.DirectoryServices.DirectoryEntry("LDAP://RootDSE")
     $ConfigurationPartition = $rootDSE.configurationNamingContext

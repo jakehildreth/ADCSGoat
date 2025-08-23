@@ -1,4 +1,4 @@
-function Get-AdcsGoatEnrollmentServiceFullName {
+function Get-AGEnrollmentServiceFullName {
     param (
         [Parameter(Mandatory)]
         [ValidateScript({ $_.objectClass -eq 'pKIEnrollmentService' })]
