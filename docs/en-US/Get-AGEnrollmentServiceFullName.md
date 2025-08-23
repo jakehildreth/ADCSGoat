@@ -5,7 +5,7 @@ online version:
 schema: 2.0.0
 ---
 
-# Set-AdcsGoatTemplateProperty
+# Get-AGEnrollmentServiceFullName
 
 ## SYNOPSIS
 {{ Fill in the Synopsis }}
@@ -13,7 +13,7 @@ schema: 2.0.0
 ## SYNTAX
 
 ```
-Set-AdcsGoatTemplateProperty [-TemplateName] <String> [-Properties] <Hashtable> [<CommonParameters>]
+Get-AGEnrollmentServiceFullName [-EnrollmentService] <DirectoryEntry> [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -30,33 +30,18 @@ PS C:\> {{ Add example code here }}
 
 ## PARAMETERS
 
-### -Properties
-{{ Fill Properties Description }}
+### -EnrollmentService
+{{ Fill EnrollmentService Description }}
 
 ```yaml
-Type: Hashtable
-Parameter Sets: (All)
-Aliases:
-
-Required: True
-Position: 1
-Default value: None
-Accept pipeline input: True (ByValue)
-Accept wildcard characters: False
-```
-
-### -TemplateName
-{{ Fill TemplateName Description }}
-
-```yaml
-Type: String
+Type: DirectoryEntry
 Parameter Sets: (All)
 Aliases:
 
 Required: True
 Position: 0
 Default value: None
-Accept pipeline input: True (ByValue)
+Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
@@ -65,9 +50,7 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 
 ## INPUTS
 
-### System.String
-
-### System.Collections.Hashtable
+### None
 
 ## OUTPUTS
 

@@ -5,7 +5,7 @@ online version:
 schema: 2.0.0
 ---
 
-# New-AdcsGoatBlankTemplateObject
+# Set-AGTemplateProperty
 
 ## SYNOPSIS
 {{ Fill in the Synopsis }}
@@ -13,7 +13,7 @@ schema: 2.0.0
 ## SYNTAX
 
 ```
-New-AdcsGoatBlankTemplateObject [-TemplateName] <String[]> [<CommonParameters>]
+Set-AGTemplateProperty [-TemplateName] <String> [-Properties] <Hashtable> [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -30,11 +30,26 @@ PS C:\> {{ Add example code here }}
 
 ## PARAMETERS
 
+### -Properties
+{{ Fill Properties Description }}
+
+```yaml
+Type: Hashtable
+Parameter Sets: (All)
+Aliases:
+
+Required: True
+Position: 1
+Default value: None
+Accept pipeline input: True (ByValue)
+Accept wildcard characters: False
+```
+
 ### -TemplateName
 {{ Fill TemplateName Description }}
 
 ```yaml
-Type: String[]
+Type: String
 Parameter Sets: (All)
 Aliases:
 
@@ -50,7 +65,9 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 
 ## INPUTS
 
-### System.String[]
+### System.String
+
+### System.Collections.Hashtable
 
 ## OUTPUTS
 
