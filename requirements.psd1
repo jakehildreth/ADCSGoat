@@ -23,4 +23,10 @@
     'PSScriptAnalyzer' = @{
         Version = '1.19.1'
     }
+    'AutomatedLab' = @{
+        Version = '5.59.0'
+    }
+    'PSFramework' = @{
+        Version = '1.13.406'
+    }
 }
