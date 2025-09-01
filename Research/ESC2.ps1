@@ -1,5 +1,4 @@
-$ESC2Properties = @{
-    displayName                     = 'ESC2'
+$ESC2 = @{
     flags                           = 131793
     'msPKI-Certificate-Name-Flag'   = 1
     'msPKI-Cert-Template-OID'       = '1.3.6.1.4.1.311.21.8.4872519.969661.15616387.15184524.2635045.52.3901854.16513874'

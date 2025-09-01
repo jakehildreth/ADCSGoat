@@ -13,8 +13,7 @@ schema: 2.0.0
 ## SYNTAX
 
 ```
-Set-AGEnrollmentServiceFullName [-EnrollmentService] <DirectoryEntry> [-EnrollmentServiceFullName] <String>
- [<CommonParameters>]
+Set-AGEnrollmentServiceFullName [-EnrollmentService] <DirectoryEntry> [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -42,22 +41,7 @@ Aliases:
 Required: True
 Position: 0
 Default value: None
-Accept pipeline input: False
-Accept wildcard characters: False
-```
-
-### -EnrollmentServiceFullName
-{{ Fill EnrollmentServiceFullName Description }}
-
-```yaml
-Type: String
-Parameter Sets: (All)
-Aliases:
-
-Required: True
-Position: 1
-Default value: None
-Accept pipeline input: False
+Accept pipeline input: True (ByValue)
 Accept wildcard characters: False
 ```
 
@@ -66,7 +50,7 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 
 ## INPUTS
 
-### None
+### System.DirectoryServices.DirectoryEntry
 
 ## OUTPUTS
 

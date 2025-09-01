@@ -1,5 +1,4 @@
-$ESC1Properties = @{
-    displayName                            = 'ESC1'
+$ESC1 = @{
     flags                                  = 131642
     'msPKI-Certificate-Application-Policy' = @( '1.3.6.1.4.1.311.10.3.4', '1.3.6.1.5.5.7.3.4', '1.3.6.1.5.5.7.3.2' )
     'msPKI-Certificate-Name-Flag'          = 1

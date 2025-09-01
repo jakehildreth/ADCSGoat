@@ -1,0 +1,21 @@
+$ESC4 = @{
+    flags                                  = 131616
+    'msPKI-Cert-Template-OID'              = '1.3.6.1.4.1.311.21.8.4872519.969661.15616387.15184524.2635045.52.14083893.367049'
+    'msPKI-Certificate-Application-Policy' = '1.3.6.1.5.5.7.3.3'
+    'msPKI-Certificate-Name-Flag'          = -2113929216
+    'msPKI-Enrollment-Flag'                = 32
+    'msPKI-Minimal-Key-Size'               = 2048
+    'msPKI-Private-Key-Flag'               = 16842752
+    'msPKI-RA-Signature'                   = 0
+    'msPKI-Template-Minor-Revision'        = 2
+    'msPKI-Template-Schema-Version'        = 2
+    pKICriticalExtensions                  = '2.5.29.15'
+    pKIDefaultCSPs                         = @('3,Microsoft Base DSS Cryptographic Provider', '2,Microsoft Base Cryptographic Provider v1.0', '1,Microsoft Enhanced Cryptographic Provider v1.0')
+    pKIDefaultKeySpec                      = 2
+    pKIExpirationPeriod                    = [byte[]](0x00, 0x40, 0x39, 0x87, 0x2E, 0xE1, 0xFE, 0xFF)
+    pKIExtendedKeyUsage                    = '1.3.6.1.5.5.7.3.3'
+    pKIKeyUsage                            = [byte[]](160, 0)
+    pKIMaxIssuingDepth                     = 0
+    pKIOverlapPeriod                       = [byte[]](0x00, 0x80, 0xA6, 0x0A, 0xFF, 0xDE, 0xFF, 0xFF)
+    revision                               = 100
+}

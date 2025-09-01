@@ -1,11 +1,12 @@
 function Set-AGEnrollmentServiceFullName {
     param (
-        [Parameter(Mandatory)]
+        [Parameter(Mandatory, ValueFromPipeline)]
         [ValidateScript({ $_.objectClass -eq 'pKIEnrollmentService' })]
-        [System.DirectoryServices.DirectoryEntry]$EnrollmentService,
-        [Parameter(Mandatory)]
-        [string]$EnrollmentServiceFullName
+        [System.DirectoryServices.DirectoryEntry]$EnrollmentService
     )
 
-    $EnrollmentService | Add-Member -NotePropertyName 'FullName' -NotePropertyValue $EnrollmentServiceFullName -Force
+    process {
+        $EnrollmentServiceFullName = "$($EnrollmentService.dNSHostName)\$($EnrollmentService.name)"
+        $EnrollmentService | Add-Member -NotePropertyName 'FullName' -NotePropertyValue $EnrollmentServiceFullName -Force
+    }
 }

@@ -21,7 +21,9 @@ function Set-AGTemplateProperty {
 
         try {
             # Apply $Properties to the object
+            $Template.Properties['displayName'].Add($TemplateName)
             foreach ($property in $Properties.GetEnumerator()) {
+                Write-Verbose "Attempting to set $($property.Name) on $TemplateName to: $($property.Value)"
                 # Each $property could be of a different type, and each type has to be applied differently.
                 if ($property.Value -is [System.Collections.ICollection] -and $property.Value -isnot [byte[]]) {
                     # Handle different collection types (ArrayList, Array, etc.), but not byte arrays
