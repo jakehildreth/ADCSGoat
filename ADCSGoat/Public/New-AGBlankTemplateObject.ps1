@@ -3,7 +3,7 @@ function New-AGBlankTemplateObject {
     param (
         [Parameter(ValueFromPipeline, Mandatory)]
         # TODO Add input validation to $TemplateName and $name
-        # TODO Generisize to create any objectClass in any location
+        # TODO Generalize to create any objectClass in any location
         [string[]]$TemplateName
     )
 
