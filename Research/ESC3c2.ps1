@@ -1,5 +1,4 @@
-$ESC3c2Properties = @{
-    displayName                            = 'ESC3c2'
+$ESC3c2 = @{
     flags                                  = 131642
     'msPKI-Certificate-Application-Policy' = '1.3.6.1.5.5.7.3.2'
     'msPKI-Certificate-Name-Flag'          = -1509949440

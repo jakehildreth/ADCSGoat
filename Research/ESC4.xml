@@ -6,6 +6,10 @@
     </TN>
     <DCT>
       <En>
+        <S N="Key">msPKI-Certificate-Name-Flag</S>
+        <I32 N="Value">-2113929216</I32>
+      </En>
+      <En>
         <S N="Key">revision</S>
         <I32 N="Value">100</I32>
       </En>
@@ -18,6 +22,7 @@
             <T>System.Object</T>
           </TN>
           <LST>
+            <S>3,Microsoft Base DSS Cryptographic Provider</S>
             <S>2,Microsoft Base Cryptographic Provider v1.0</S>
             <S>1,Microsoft Enhanced Cryptographic Provider v1.0</S>
           </LST>
@@ -33,19 +38,19 @@
       </En>
       <En>
         <S N="Key">msPKI-Enrollment-Flag</S>
-        <I32 N="Value">41</I32>
+        <I32 N="Value">32</I32>
       </En>
       <En>
         <S N="Key">flags</S>
-        <I32 N="Value">131642</I32>
+        <I32 N="Value">131616</I32>
       </En>
       <En>
-        <S N="Key">pKIDefaultKeySpec</S>
-        <I32 N="Value">1</I32>
+        <S N="Key">pKIMaxIssuingDepth</S>
+        <I32 N="Value">0</I32>
       </En>
       <En>
         <S N="Key">msPKI-Private-Key-Flag</S>
-        <I32 N="Value">16842768</I32>
+        <I32 N="Value">16842752</I32>
       </En>
       <En>
         <S N="Key">msPKI-Template-Schema-Version</S>
@@ -53,47 +58,39 @@
       </En>
       <En>
         <S N="Key">msPKI-Certificate-Application-Policy</S>
-        <S N="Value">1.3.6.1.5.5.7.3.2</S>
-      </En>
-      <En>
-        <S N="Key">msPKI-RA-Application-Policies</S>
-        <S N="Value">1.3.6.1.4.1.311.20.2.1</S>
+        <S N="Value">1.3.6.1.5.5.7.3.3</S>
       </En>
       <En>
         <S N="Key">pKIExtendedKeyUsage</S>
-        <S N="Value">1.3.6.1.5.5.7.3.2</S>
+        <S N="Value">1.3.6.1.5.5.7.3.3</S>
       </En>
       <En>
         <S N="Key">msPKI-Template-Minor-Revision</S>
-        <I32 N="Value">9</I32>
+        <I32 N="Value">2</I32>
       </En>
       <En>
         <S N="Key">pKICriticalExtensions</S>
         <S N="Value">2.5.29.15</S>
       </En>
       <En>
-        <S N="Key">msPKI-Certificate-Name-Flag</S>
-        <I32 N="Value">-1509949440</I32>
+        <S N="Key">msPKI-Cert-Template-OID</S>
+        <S N="Value">1.3.6.1.4.1.311.21.8.4872519.969661.15616387.15184524.2635045.52.14083893.367049</S>
       </En>
       <En>
         <S N="Key">pKIKeyUsage</S>
         <BA N="Value">oAA=</BA>
       </En>
       <En>
-        <S N="Key">msPKI-Cert-Template-OID</S>
-        <S N="Value">1.3.6.1.4.1.311.21.8.4872519.969661.15616387.15184524.2635045.52.6088930.7208228</S>
+        <S N="Key">pKIDefaultKeySpec</S>
+        <I32 N="Value">2</I32>
       </En>
       <En>
         <S N="Key">msPKI-RA-Signature</S>
-        <I32 N="Value">1</I32>
+        <I32 N="Value">0</I32>
       </En>
       <En>
         <S N="Key">msPKI-Minimal-Key-Size</S>
         <I32 N="Value">2048</I32>
-      </En>
-      <En>
-        <S N="Key">pKIMaxIssuingDepth</S>
-        <I32 N="Value">0</I32>
       </En>
     </DCT>
   </Obj>

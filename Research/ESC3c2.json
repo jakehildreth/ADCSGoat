@@ -1,27 +1,5 @@
 {
-  "msPKI-Minimal-Key-Size": 2048,
-  "msPKI-RA-Signature": 1,
-  "msPKI-RA-Application-Policies": "1.3.6.1.4.1.311.20.2.1",
-  "msPKI-Enrollment-Flag": 41,
-  "msPKI-Template-Schema-Version": 2,
-  "pKIExpirationPeriod": [
-    0,
-    64,
-    57,
-    135,
-    46,
-    225,
-    254,
-    255
-  ],
-  "pKIExtendedKeyUsage": "1.3.6.1.5.5.7.3.2",
-  "msPKI-Cert-Template-OID": "1.3.6.1.4.1.311.21.8.4872519.969661.15616387.15184524.2635045.52.6088930.7208228",
-  "flags": 131642,
-  "displayName": "ESC3c2",
-  "msPKI-Template-Minor-Revision": 9,
-  "msPKI-Private-Key-Flag": 16842768,
-  "msPKI-Certificate-Name-Flag": -1509949440,
-  "pKIDefaultKeySpec": 1,
+  "revision": 100,
   "pKIDefaultCSPs": [
     "2,Microsoft Base Cryptographic Provider v1.0",
     "1,Microsoft Enhanced Cryptographic Provider v1.0"
@@ -36,12 +14,33 @@
     255,
     255
   ],
-  "pKIMaxIssuingDepth": 0,
+  "pKIExpirationPeriod": [
+    0,
+    64,
+    57,
+    135,
+    46,
+    225,
+    254,
+    255
+  ],
+  "msPKI-Enrollment-Flag": 41,
+  "flags": 131642,
+  "pKIDefaultKeySpec": 1,
+  "msPKI-Private-Key-Flag": 16842768,
+  "msPKI-Template-Schema-Version": 2,
+  "msPKI-Certificate-Application-Policy": "1.3.6.1.5.5.7.3.2",
+  "msPKI-RA-Application-Policies": "1.3.6.1.4.1.311.20.2.1",
+  "pKIExtendedKeyUsage": "1.3.6.1.5.5.7.3.2",
+  "msPKI-Template-Minor-Revision": 9,
+  "pKICriticalExtensions": "2.5.29.15",
+  "msPKI-Certificate-Name-Flag": -1509949440,
   "pKIKeyUsage": [
     160,
     0
   ],
-  "revision": 100,
-  "pKICriticalExtensions": "2.5.29.15",
-  "msPKI-Certificate-Application-Policy": "1.3.6.1.5.5.7.3.2"
+  "msPKI-Cert-Template-OID": "1.3.6.1.4.1.311.21.8.4872519.969661.15616387.15184524.2635045.52.6088930.7208228",
+  "msPKI-RA-Signature": 1,
+  "msPKI-Minimal-Key-Size": 2048,
+  "pKIMaxIssuingDepth": 0
 }
