@@ -29,4 +29,7 @@
     'PSFramework' = @{
         Version = '1.13.406'
     }
+    'PSCertutil' = @{
+        Version = '0.0.1'
+    }
 }
