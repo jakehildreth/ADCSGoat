@@ -5,7 +5,7 @@ online version:
 schema: 2.0.0
 ---
 
-# Deploy-AdcsGoat
+# Install-ADCSGoat
 
 ## SYNOPSIS
 {{ Fill in the Synopsis }}
@@ -13,7 +13,7 @@ schema: 2.0.0
 ## SYNTAX
 
 ```
-Deploy-AdcsGoat [-Randomize] [<CommonParameters>]
+Install-ADCSGoat [-Randomize] [<CommonParameters>]
 ```
 
 ## DESCRIPTION

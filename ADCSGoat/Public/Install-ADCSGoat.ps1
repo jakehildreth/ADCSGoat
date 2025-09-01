@@ -1,4 +1,4 @@
-function Deploy-AdcsGoat {
+function Install-ADCSGoat {
     [CmdletBinding()]
     param (
         [switch]$Randomize
@@ -49,29 +49,28 @@ function Deploy-AdcsGoat {
     # What: Get the list of all Enrollment Services, generate their full CA names, then add the name to the CA object
     # Why:
     $EnrollmentServices = Find-AGEnrollmentService
-    $EnrollmentServicesWithFullName = $EnrollmentServices | Set-AGEnrollmentServiceFullName
+    $EnrollmentServices | Set-AGEnrollmentServiceFullName
 
     # What: Enable ESC5 configuration on all CAs.
     # Why:
-    $EnrollmentServicesWithFullName | ForEach-Object {
+    $EnrollmentServices | ForEach-Object {
         Write-Verbose "Granting Authenticated Users Full Control of: $($_.FullName)"
         # Enable-PCEditFlag -CAFullName $_.FullName -Flag EDITF_ATTRIBUTESUBJECTALTNAME2
     }
 
     # What: Enable ESC6 configuration on all CAs.
     # Why:
-    $EnrollmentServicesWithFullName | ForEach-Object {
+    $EnrollmentServices | ForEach-Object {
         Write-Verbose "Assigning ESC6 configuration to: $($_.Name)"
         Enable-PCEditFlag -CAFullName $_.FullName -Flag EDITF_ATTRIBUTESUBJECTALTNAME2
     }
 
     # What: Enable ESC11 configuration on all CAs.
     # Why:
-    $EnrollmentServicesWithFullName | ForEach-Object {
+    $EnrollmentServices | ForEach-Object {
         Write-Verbose "Assigning ESC11 configuration to: $($_.Name)"
         Disable-PCInterfaceFlag -CAFullName $_.FullName -Flag IF_ENFORCEENCRYPTICERTREQUEST
     }
 
     #endregion ca issues
 }
-
