@@ -7,7 +7,7 @@ function Deploy-AGInfrastructure {
     [CmdletBinding()]
     param (
         [PsfValidatePattern('^\w{1,11}$', ErrorMessage = 'Lab name must be no longer than 11 characters and only contain letters and numbers.')]
-        $Name = 'Locksmith',
+        $Name = 'ADCSGoat',
         [PsfValidatePattern('\.', ErrorMessage = 'Domain must contain at least one dot.')]
         $Domain = 'adcs.goat',
         $ExternalSwitch = 'External Switch',
@@ -191,3 +191,4 @@ Privileged Access Workstation IP: <c='em'>$PAWIP</c>
 
     Show-LabDeploymentSummary
 }
+
