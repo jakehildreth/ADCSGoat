@@ -4,7 +4,9 @@ function New-AGBlankTemplateObject {
         [Parameter(ValueFromPipeline, Mandatory)]
         # TODO Add input validation to $TemplateName and $name
         # TODO Generalize to create any objectClass in any location
-        [string[]]$TemplateName
+        [string[]]$TemplateName,
+        [Parameter(ValueFromPipeline, Mandatory)]
+        [string]$Server
     )
 
     begin {
@@ -12,10 +14,10 @@ function New-AGBlankTemplateObject {
         Add-Type -AssemblyName System.DirectoryServices
 
         # Get the Configuration partition automatically via RootDSE
-        $RootDSE = New-Object System.DirectoryServices.DirectoryEntry("LDAP://RootDSE")
+        $RootDSE = New-Object System.DirectoryServices.DirectoryEntry("LDAP://$Server/RootDSE")
         $ConfigurationPartition = $rootDSE.configurationNamingContext
         $TemplatesContainer = "CN=Certificate Templates,CN=Public Key Services,CN=Services,$ConfigurationPartition"
-        $TemplatePath = New-Object System.DirectoryServices.DirectoryEntry("LDAP://$TemplatesContainer")
+        $TemplatePath = New-Object System.DirectoryServices.DirectoryEntry("LDAP://$Server/$TemplatesContainer")
     }
 
     process {
@@ -26,7 +28,8 @@ function New-AGBlankTemplateObject {
                     $newTemplate = $TemplatePath.Children.Add("CN=$name", "pKICertificateTemplate")
                     $newTemplate.CommitChanges()
                     $success = $true
-                } catch {
+                }
+                catch {
                     Write-Error "That template name ($name) is invalid. Please enter a new name."
                     $name = Read-Host -Prompt 'New Template Name'
                 }
