@@ -25,7 +25,7 @@ function Install-ADCSGoat {
     # Why:
     $Templates | ForEach-Object {
         Write-Verbose "Assigning $($_.ESC) configuration to: $($_.Name)"
-        $PropertiesPath = Join-Path -Path ".\Research" -ChildPath "$($_.ESC).xml"
+        $PropertiesPath = Join-Path -Path $PSScriptRoot -ChildPath "..\Private\Template\$($_.ESC).xml"
         $Properties = Import-Clixml -Path $PropertiesPath
         Set-AGTemplateProperty -TemplateName $_.Name -Properties $Properties
     }
