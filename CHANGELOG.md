@@ -1,3 +1,13 @@
+## [0.4.0] - 2026-02-21
+
+### ⚙️ Miscellaneous Tasks
+
+- Add PSRepositoryApiKey to properties for publishing
+## [unreleased]
+
+### ⚙️ Miscellaneous Tasks
+
+- Remove unused dependencies 'AutomatedLab' and 'PSFramework' from requirements
 ## [unreleased]
 
 ### 🐛 Bug Fixes

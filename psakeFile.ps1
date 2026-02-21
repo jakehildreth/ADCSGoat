@@ -2,6 +2,7 @@ properties {
     # Set this to $true to create a module with a monolithic PSM1
     $PSBPreference.Build.CompileModule = $false
     $PSBPreference.Help.DefaultLocale = 'en-US'
+    $PSBPreference.Help.GenerateMarkdown = $false
     $PSBPreference.Test.OutputFile = 'out/testResults.xml'
     $PSBPreference.Publish.PSRepositoryApiKey = $env:PSGALLERY_API_KEY
 }
