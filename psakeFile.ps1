@@ -3,6 +3,7 @@ properties {
     $PSBPreference.Build.CompileModule = $false
     $PSBPreference.Help.DefaultLocale = 'en-US'
     $PSBPreference.Test.OutputFile = 'out/testResults.xml'
+    $PSBPreference.Publish.PSRepositoryApiKey = $env:PSGALLERY_API_KEY
 }
 
 task Default -depends Test
