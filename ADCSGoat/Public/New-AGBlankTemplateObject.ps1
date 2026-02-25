@@ -28,8 +28,7 @@ function New-AGBlankTemplateObject {
                     $newTemplate = $TemplatePath.Children.Add("CN=$name", "pKICertificateTemplate")
                     $newTemplate.CommitChanges()
                     $success = $true
-                }
-                catch {
+                } catch {
                     Write-Error "That template name ($name) is invalid. Please enter a new name."
                     $name = Read-Host -Prompt 'New Template Name'
                 }
