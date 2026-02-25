@@ -1,3 +1,26 @@
+## [0.4.1] - 2026-02-25
+
+### 🐛 Bug Fixes
+
+- Format EnrollGUID assignment
+- Upate cached modules and update required version for PSCertutil
+- Update ScriptAnalysisSettings for improved linting rules
+
+### 🚜 Refactor
+
+- Improve variable naming, remove AD PS module dependency
+- Bring Set-AGTemplateAce.ps1 inline with existing style
+- AccessRule creation with regex switch
+
+### ⚙️ Miscellaneous Tasks
+
+- Remove unused dependencies 'AutomatedLab' and 'PSFramework' from requirements
+- *(docs)* Update README, LICENSE, and manifest to align with standards
+- Update changelog for version 0.4.0 and add PSRepositoryApiKey property
+- Updated variable name to match content
+- Fix else and finally formatting because OTBS
+- Cuddled catch is 🥰
+- Nitpix
 ## [0.4.0] - 2026-02-21
 
 ### ⚙️ Miscellaneous Tasks
