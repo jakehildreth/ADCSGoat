@@ -1,9 +1,24 @@
-# Change Log
+## [0.4.0] - 2026-02-21
 
-All notable changes to this project will be documented in this file.
+### ⚙️ Miscellaneous Tasks
 
-The format is based on [Keep a Changelog](http://keepachangelog.com/)
-and this project adheres to [Semantic Versioning](http://semver.org/).
+- Add PSRepositoryApiKey to properties for publishing
+## [unreleased]
+
+### ⚙️ Miscellaneous Tasks
+
+- Remove unused dependencies 'AutomatedLab' and 'PSFramework' from requirements
+## [unreleased]
+
+### 🐛 Bug Fixes
+
+- Change prefix of commands pulled from PSCertutil
+
+### ⚙️ Miscellaneous Tasks
+
+- Moving template files into default directories so they are published in the module that goes to PSGallery
+- Update template properties path to use script root for consistency
+- Add git-cliff configuration for changelog generation
 
 ## [0.3.1]
 
@@ -37,3 +52,12 @@ Prelease version to see how to create a prerelease version.
 
 Initial commit. Doesn't do anything. Just learning PSStucco.
 
+# Changelog Meta
+
+All notable changes to this project will be documented in this file.
+
+Using:
+  - [Keep a Changelog](http://keepachangelog.com/)
+  - [Semantic Versioning](http://semver.org/)
+  - [Conventional Commits](https://www.conventionalcommits.org/)
+  - [git-cliff](https://git-cliff.org)

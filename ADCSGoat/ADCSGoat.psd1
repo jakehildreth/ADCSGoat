@@ -12,7 +12,7 @@
 RootModule = 'ADCSGoat.psm1'
 
 # Version number of this module.
-ModuleVersion = '0.3.1'
+ModuleVersion = '0.4.0'
 
 # Supported PSEditions
 # CompatiblePSEditions = @()
@@ -27,7 +27,7 @@ Author = 'Jake Hildreth'
 CompanyName = 'Gilmour Technologies Ltd'
 
 # Copyright statement for this module
-Copyright = '(c) 2025 Jake Hildreth. All rights reserved.'
+Copyright = '(c) 2026 Jake Hildreth, Gilmour Technologies Ltd. All rights reserved.'
 
 # Description of the functionality provided by this module
 Description = 'A tiny module built for a single purpose: building a small and very insecure AD CS lab.'

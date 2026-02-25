@@ -41,21 +41,21 @@ function Uninstall-ADCSGoat {
     # Why:
     # $EnrollmentServices | ForEach-Object {
     #     Write-Verbose "Granting Authenticated Users Full Control of: $($_.FullName)"
-    #     Enable-PCEditFlag -CAFullName $_.FullName -Flag EDITF_ATTRIBUTESUBJECTALTNAME2
+    #     Enable-PSCEditFlag -CAFullName $_.FullName -Flag EDITF_ATTRIBUTESUBJECTALTNAME2
     # }
 
     # What: Disable ESC6 configuration on all CAs.
     # Why:
     $EnrollmentServices | ForEach-Object {
         Write-Verbose "Assigning ESC6 configuration to: $($_.Name)"
-        Disable-PCEditFlag -CAFullName $_.FullName -Flag EDITF_ATTRIBUTESUBJECTALTNAME2
+        Disable-PSCEditFlag -CAFullName $_.FullName -Flag EDITF_ATTRIBUTESUBJECTALTNAME2
     }
 
     # What: Disable ESC11 configuration on all CAs.
     # Why:
     $EnrollmentServices | ForEach-Object {
         Write-Verbose "Assigning ESC11 configuration to: $($_.Name)"
-        Enable-PCInterfaceFlag -CAFullName $_.FullName -Flag IF_ENFORCEENCRYPTICERTREQUEST
+        Enable-PSCInterfaceFlag -CAFullName $_.FullName -Flag IF_ENFORCEENCRYPTICERTREQUEST
     }
 
     #endregion ca issues
