@@ -2,6 +2,8 @@ function Set-AGTemplateProperty {
     [CmdletBinding()]
     param (
         [Parameter(ValueFromPipeline, Mandatory)]
+        [string]$Server,
+        [Parameter(ValueFromPipeline, Mandatory)]
         [string]$TemplateName,
         [Parameter(ValueFromPipeline, Mandatory)]
         [hashtable]$Properties
@@ -10,14 +12,14 @@ function Set-AGTemplateProperty {
     begin {
         Add-Type -AssemblyName System.DirectoryServices
         # Get the Configuration partition
-        $RootDSE = New-Object System.DirectoryServices.DirectoryEntry("LDAP://RootDSE")
+        $RootDSE = New-Object System.DirectoryServices.DirectoryEntry("LDAP://$Server/RootDSE")
         $ConfigurationPartition = $rootDSE.configurationNamingContext
     }
 
     process {
         # Connect to the specific template
         $TemplateDN = "CN=$TemplateName,CN=Certificate Templates,CN=Public Key Services,CN=Services,$ConfigurationPartition"
-        $Template = New-Object System.DirectoryServices.DirectoryEntry("LDAP://$TemplateDN")
+        $Template = New-Object System.DirectoryServices.DirectoryEntry("LDAP://$Server/$TemplateDN")
 
         try {
             # Set displayName and description for easy cleanup later.
