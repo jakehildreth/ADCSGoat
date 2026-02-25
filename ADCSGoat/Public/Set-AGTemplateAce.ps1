@@ -66,7 +66,7 @@ function Set-AGTemplateAce {
     process {
         Write-Output $TemplateName -PipelineVariable name | ForEach-Object {
             $success = $false
-            $TemplateObject = New-Object System.DirectoryServices.DirectoryEntry("LDAP://CN=$name,$TemplateContainer")
+            $TemplateObject = New-Object System.DirectoryServices.DirectoryEntry("LDAP://$Server/CN=$name,$TemplateContainer")
 
             while (-not $success) {
                 # Get the current ACL
