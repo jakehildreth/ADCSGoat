@@ -32,7 +32,7 @@ function Install-ADCSGoat {
     # Why:
     $Templates | ForEach-Object {
         Write-Verbose "Assigning $($_.ESC) configuration to: $($_.Name)"
-        $PropertiesPath = Join-Path -Path $Script:ResearchFolder  -ChildPath "$($_.ESC).xml"
+        $PropertiesPath = Join-Path -Path $PSScriptRoot -ChildPath "..\Private\Template\$($_.ESC).xml"
         $Properties = Import-Clixml -Path $PropertiesPath
         Set-AGTemplateProperty -TemplateName $_.Name -Properties $Properties -Server $Server
     }
@@ -62,7 +62,7 @@ function Install-ADCSGoat {
     # Why:
     $EnrollmentServices | ForEach-Object {
         Write-Verbose "Granting Authenticated Users Full Control of: $($_.FullName)"
-        # Enable-PCEditFlag -CAFullName $_.FullName -Flag EDITF_ATTRIBUTESUBJECTALTNAME2
+        # Enable-PSCEditFlag -CAFullName $_.FullName -Flag EDITF_ATTRIBUTESUBJECTALTNAME2
     }
 
     # What: Enable ESC6 configuration on all CAs.
@@ -70,7 +70,7 @@ function Install-ADCSGoat {
     #Import-Module $Global:PathPSCertutil -Force
     $EnrollmentServices | ForEach-Object {
         Write-Verbose "Assigning ESC6 configuration to: $($_.Name)"
-        Enable-PCEditFlag -CAFullName $_.FullName -Flag EDITF_ATTRIBUTESUBJECTALTNAME2
+        Enable-PSCEditFlag -CAFullName $_.FullName -Flag EDITF_ATTRIBUTESUBJECTALTNAME2
     }
 
     # What: Enable ESC11 configuration on all CAs.
@@ -78,7 +78,7 @@ function Install-ADCSGoat {
 
     $EnrollmentServices | ForEach-Object {
         Write-Verbose "Assigning ESC11 configuration to: $($_.Name)"
-        Disable-PCInterfaceFlag -CAFullName $_.FullName -Flag IF_ENFORCEENCRYPTICERTREQUEST
+        Disable-PSCInterfaceFlag -CAFullName $_.FullName -Flag IF_ENFORCEENCRYPTICERTREQUEST
     }
 
     # What: Publish Certificate Templates
