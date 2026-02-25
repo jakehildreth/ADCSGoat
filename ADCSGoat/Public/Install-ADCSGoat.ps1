@@ -2,23 +2,22 @@ function Install-ADCSGoat {
     [CmdletBinding()]
     param (
         [switch]$Randomize,
-        [string]$CTPreFix = "ADCSGoat",
+        [string]$TemplatePrefix = "AG",
         [string]$Server
     )
 
-    If ([string]::IsNullOrEmpty($Server)) {
-        $Server = $env:LOGONSERVER -replace '^\\\\', ''
-        $Server = (Get-ADDomainController -Identity $Server).HostName
+    if ([string]::IsNullOrEmpty($Server)) {
+        $Server = [System.Net.Dns]::GetHostEntry($env:LOGONSERVER.TrimStart('\')).HostName
     }
 
     #region template issues
     $Templates = @(
-        @{Name = "$CTPreFix`ESC1"; ESC = 'ESC1' }
-        @{Name = "$CTPreFix`ESC2"; ESC = 'ESC2' }
-        @{Name = "$CTPreFix`ESC3c1"; ESC = 'ESC3c1' }
-        @{Name = "$CTPreFix`ESC3c2"; ESC = 'ESC3c2' }
-        @{Name = "$CTPreFix`ESC4"; ESC = 'ESC4' }
-        @{Name = "$CTPreFix`ESC9"; ESC = 'ESC9' }
+        @{Name = "${TemplatePrefix}ESC1"; ESC = 'ESC1' }
+        @{Name = "${TemplatePrefix}ESC2"; ESC = 'ESC2' }
+        @{Name = "${TemplatePrefix}ESC3c1"; ESC = 'ESC3c1' }
+        @{Name = "${TemplatePrefix}ESC3c2"; ESC = 'ESC3c2' }
+        @{Name = "${TemplatePrefix}ESC4"; ESC = 'ESC4' }
+        @{Name = "${TemplatePrefix}ESC9"; ESC = 'ESC9' }
     )
 
     # What: Create blank template objects.
@@ -67,7 +66,6 @@ function Install-ADCSGoat {
 
     # What: Enable ESC6 configuration on all CAs.
     # Why:
-    #Import-Module $Global:PathPSCertutil -Force
     $EnrollmentServices | ForEach-Object {
         Write-Verbose "Assigning ESC6 configuration to: $($_.Name)"
         Enable-PSCEditFlag -CAFullName $_.FullName -Flag EDITF_ATTRIBUTESUBJECTALTNAME2
@@ -91,3 +89,4 @@ function Install-ADCSGoat {
 
     #endregion ca issues
 }
+
