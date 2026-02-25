@@ -11,17 +11,16 @@ function Publish-AGCertifcateTemplate {
 
     begin {
         Add-Type -AssemblyName System.DirectoryServices
-        $ADCSObjects = [ADSI]$EnrollmentService.Replace("LDAP://", "LDAP://$Server/")
+        $EnrollmentServiceObject = [ADSI]$EnrollmentService.Replace("LDAP://", "LDAP://$Server/")
     }
 
     process {
 
-        if ($ADCSObjects.certificateTemplates -notcontains $TemplateName) {
-            $ADCSObjects.PutEx(3, "certificateTemplates", @($TemplateName))
-            $ADCSObjects.SetInfo()
+        if ($EnrollmentServiceObject.certificateTemplates -notcontains $TemplateName) {
+            $EnrollmentServiceObject.PutEx(3, "certificateTemplates", @($TemplateName))
+            $EnrollmentServiceObject.SetInfo()
             Write-Verbose "Template '$TemplateName' published."
-        }
-        else {
+        } else {
             Write-Verbose  "Template '$TemplateName' already published on CA!"
         }
     }
