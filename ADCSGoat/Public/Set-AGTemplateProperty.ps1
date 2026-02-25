@@ -39,16 +39,14 @@ function Set-AGTemplateProperty {
                     foreach ($value in $property.Value) {
                         $Template.Properties[$property.Key].Add($value) | Out-Null
                     }
-                }
-                else {
+                } else {
                     # Handle byte arrays and single values (strings, integers, etc.) simply
                     Write-Verbose -Message 'Adding simple value'
                     $Template.Properties[$property.Key].Value = $property.Value
                 }
             }
             $Template.CommitChanges()
-        }
-        finally {
+        } finally {
             # if ($Template) { $Template.Dispose() }
         }
     }
