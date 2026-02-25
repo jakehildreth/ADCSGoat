@@ -47,31 +47,18 @@ function Set-AGTemplateAce {
         # $Deny = [System.Security.AccessControl.AccessControlType]::Deny
 
         # Build AccessRule
-        $AccessRule = switch ($AceType) {
-
+        $AccessRule = switch -Regex ($AceType) {
             'Enroll' {
                 @(
-                    New-Object System.DirectoryServices.ActiveDirectoryAccessRule `
-                        $AuthenticatedUsers, $ExtendedRight, $Allow, $EnrollGUID
-
-                    New-Object System.DirectoryServices.ActiveDirectoryAccessRule `
-                        $AuthenticatedUsers, $GenericRead, $Allow, $AllPropertiesGUID
+                    New-Object System.DirectoryServices.ActiveDirectoryAccessRule $AuthenticatedUsers, $ExtendedRight, $Allow, $EnrollGUID
+                    New-Object System.DirectoryServices.ActiveDirectoryAccessRule $AuthenticatedUsers, $GenericRead, $Allow, $AllPropertiesGUID
                 )
             }
-
-            'FullControl' {
-                New-Object System.DirectoryServices.ActiveDirectoryAccessRule `
-                    $AuthenticatedUsers, $GenericAll, $Allow, $AllPropertiesGUID
+            'FullControl|GenericAll' {
+                New-Object System.DirectoryServices.ActiveDirectoryAccessRule $AuthenticatedUsers, $GenericAll, $Allow, $AllPropertiesGUID
             }
-
-            'GenericAll' {
-                New-Object System.DirectoryServices.ActiveDirectoryAccessRule `
-                    $AuthenticatedUsers, $GenericAll, $Allow, $AllPropertiesGUID
-            }
-
             'WriteProperty' {
-                New-Object System.DirectoryServices.ActiveDirectoryAccessRule `
-                    $AuthenticatedUsers, $WriteProperty, $Allow, $AllPropertiesGUID
+                New-Object System.DirectoryServices.ActiveDirectoryAccessRule $AuthenticatedUsers, $WriteProperty, $Allow, $AllPropertiesGUID
             }
         }
     }
