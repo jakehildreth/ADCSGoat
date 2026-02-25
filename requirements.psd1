@@ -24,6 +24,6 @@
         Version = '1.19.1'
     }
     'PSCertutil' = @{
-        Version = '0.0.1'
+        Version = '0.0.3'
     }
 }
