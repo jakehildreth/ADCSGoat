@@ -1,10 +1,13 @@
 function Set-AGTemplateAce {
+
     [CmdletBinding()]
     param (
         [Parameter(ValueFromPipeline, Mandatory)]
+        [string]$Server,    
+        [Parameter(ValueFromPipeline, Mandatory)]
         [string[]]$TemplateName,
         [Parameter(Mandatory)]
-        [ValidateSet('Enroll','FullControl','GenericAll','WriteProperty')]
+        [ValidateSet('Enroll', 'FullControl', 'GenericAll', 'WriteProperty')]
         [string]$AceType
     )
 
@@ -13,8 +16,12 @@ function Set-AGTemplateAce {
         Add-Type -AssemblyName System.DirectoryServices
 
         # Get the Configuration partition automatically via RootDSE
-        $RootDSE = New-Object System.DirectoryServices.DirectoryEntry("LDAP://RootDSE")
-        $ConfigurationPartition = $rootDSE.configurationNamingContext
+        try {
+            $RootDSE = New-Object System.DirectoryServices.DirectoryEntry("LDAP://$Server/RootDSE")
+            $ConfigurationPartition = $RootDSE.configurationNamingContext
+        } catch {
+            throw "Failed to query RootDSE on $Server. $_"
+        }
         $TemplateContainer = "CN=Certificate Templates,CN=Public Key Services,CN=Services,$ConfigurationPartition"
 
         # Define principals for use in ACEs
@@ -39,6 +46,7 @@ function Set-AGTemplateAce {
         $Allow = [System.Security.AccessControl.AccessControlType]::Allow
         # $Deny = [System.Security.AccessControl.AccessControlType]::Deny
 
+        # Build AccessRule
         $AccessRule = switch -Regex ($AceType) {
             'Enroll' {
                 @(
