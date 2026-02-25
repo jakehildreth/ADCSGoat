@@ -39,7 +39,7 @@ function Set-AGTemplateAce {
         # Define GUIDs for use in ACEs
         # TODO get the ms-PKI GIDs
         $AllPropertiesGUID = [GUID]'00000000-0000-0000-0000-000000000000'
-        $EnrollGUID = [GUID]'0e10c968-78fb-11d2-90d4-00c04f79dc55'
+        $EnrollGUID        = [GUID]'0e10c968-78fb-11d2-90d4-00c04f79dc55'
         # $AutoEnrollGUID    = [GUID]'a05b8cc2-17bc-4802-a710-e7c15ab866a2'
 
         # Define Access Control Type for use in ACEs
