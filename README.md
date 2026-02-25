@@ -27,7 +27,7 @@ ADCSGoat creates vulnerable Active Directory Certificate Services (AD CS) certif
 ## Installation
 
 ```powershell
-Install-Module -Name ADCSGoat
+Install-Module -Name ADCSGoat AllowPrerelase
 ```
 
 Or clone the repo and import directly:
@@ -70,3 +70,4 @@ MIT License w/Commons Clause - see [LICENSE](..\LICENSE) file for details.
 ---
 
 Made with 💜 by [Jake Hildreth](https://jakehildreth.com)
+
