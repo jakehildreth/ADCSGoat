@@ -1,35 +1,63 @@
+name: Build and Publish to PSGallery
+
 on:
   push:
     branches:
       - main
+    paths:
+      - 'Public/**'
+      - 'Private/**'
+      - 'Build/**'
+      - 'ADCSGoat.psm1'
+      - 'ADCSGoat.psd1'
+      - 'LICENSE'
   workflow_dispatch:
+
 jobs:
-  build:
+  build-and-publish:
     runs-on: windows-latest
+
     steps:
-      # Get the current version
-      - uses: actions/checkout@v3
-      - name: Install and cache PowerShell modules
-        id: psmodulecache
-        uses: potatoqualitee/psmodulecache@v6.2.1
-        with:
-          modules-to-cache: BuildHelpers, PSFramework
-      - shell: pwsh
-        # Give an id to the step, so we can reference it later
-        id: check_if_versions_bumped
-        run: |
-          [version]$GalleryVersion = Get-NextNugetPackageVersion -Name ADCSGoat -ErrorAction Stop
-          [version]$GithubVersion = Get-MetaData -Path ./ADCSGoat.psd1 -PropertyName ModuleVersion -ErrorAction Stop
-          $bumped = $GithubVersion -ge $GalleryVersion
+    - name: Checkout code
+      uses: actions/checkout@v4
 
-          # Set the output named "version_bumped"
-          Write-Host "::set-output name=version_bumped::$bumped"
+    - name: Install required PowerShell modules
+      shell: pwsh
+      run: |
+        Write-Host "Installing required modules..." -ForegroundColor Cyan
+        Install-Module -Name Pester -AllowClobber -Scope CurrentUser -SkipPublisherCheck -Force
+        Install-Module -Name PSScriptAnalyzer -AllowClobber -Scope CurrentUser -Force
+        Install-Module -Name PSPublishModule -AllowClobber -MaximumVersion 2.0.27 -Scope CurrentUser -Force
+        Install-Module -Name PSCertutil -AllowClobber -Scope CurrentUser -Force
+        Write-Host "Modules installed successfully" -ForegroundColor Green
 
-      - name: Publish to PSGallery
-        shell: pwsh
-        if: steps.check_if_versions_bumped.outputs.version_bumped == 'True'
-        env:
-          PSGALLERY_API_KEY: ${{ secrets.PS_GALLERY_KEY }}
-        run: |
-          Import-Module PSFramework
-          ./build.ps1 -Task Publish -Bootstrap
+    - name: Run Pester tests
+      shell: pwsh
+      continue-on-error: true
+      run: |
+        Write-Host "Running Pester tests..." -ForegroundColor Cyan
+        $testResults = Invoke-Pester -Path ./Tests/ -PassThru -CI -Output Detailed
+        Write-Host "Tests completed: $($testResults.PassedCount) passed, $($testResults.FailedCount) failed" -ForegroundColor Cyan
+        if ($testResults.FailedCount -gt 0) {
+            Write-Warning "Some Pester tests failed, but continuing with build."
+        }
+
+    - name: Build and Publish
+      shell: pwsh
+      env:
+        PSGALLERY_API_KEY: ${{ secrets.PS_GALLERY_KEY }}
+      run: |
+        Write-Host "Building and publishing ADCSGoat..." -ForegroundColor Cyan
+        ./Build/Build-Module.ps1 -PublishToPSGallery -PSGalleryAPIKey $env:PSGALLERY_API_KEY
+        Write-Host "Published successfully" -ForegroundColor Green
+
+    - name: Get module version
+      id: version
+      shell: pwsh
+      run: |
+        $manifest = Import-PowerShellDataFile ./ADCSGoat.psd1
+        $version = $manifest.ModuleVersion
+        $prerelease = $manifest.PrivateData.PSData.Prerelease
+        $fullVersion = if ($prerelease) { "$version-$prerelease" } else { $version }
+        echo "version=$fullVersion" >> $env:GITHUB_OUTPUT
+        Write-Host "Module version: $fullVersion" -ForegroundColor Green

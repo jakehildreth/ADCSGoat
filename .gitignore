@@ -1,5 +1,6 @@
-# Don't check in the Output dir
+# Don't check in build output directories
 Output/
+Artefacts/
 
 scratch/
 
