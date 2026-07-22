@@ -4,7 +4,7 @@ properties {
     $PSBPreference.Help.DefaultLocale = 'en-US'
     $PSBPreference.Help.GenerateMarkdown = $false
     $PSBPreference.Test.OutputFile = 'out/testResults.xml'
-    $PSBPreference.Test.ScriptAnalysisSettingsPath = './tests/ScriptAnalyzerSettings.psd1'
+    $PSBPreference.Test.ScriptAnalysisSettingsPath = './Tests/ScriptAnalyzerSettings.psd1'
     $PSBPreference.Publish.PSRepositoryApiKey = $env:PSGALLERY_API_KEY
 }
 
