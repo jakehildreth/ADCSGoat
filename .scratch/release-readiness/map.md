@@ -19,6 +19,7 @@ Every blocking gate in `Research/RELEASE-CHECKLIST.md` resolved to a decision. T
 - [Build fails on vendored-dep save error](issues/02-build-fails-on-vendored-dep-error.md) — targeted hardening: `-ErrorAction Stop` on `Save-Module`, `throw` in post-build guards, pinned-version folder check (stale folders currently mask failed saves), non-zero exit from `Build-Module.ps1`.
 - [Artifact directory cleaning](issues/03-artifact-directory-cleaning.md) — pre-clean in `Build-Module.ps1` nukes `Artefacts/Unpacked/` + `Artefacts/Packed/` (old zips too) before building; PSPublishModule's `Remove-ItemAlternative` is broken on macOS (reproduced); upstream bug report to file. Canonical layout defined for 05/09.
 - [Artifact version matches -CalVer](issues/04-artifact-version-matches-calver.md) — was never broken: audit read a stale nested artifact (03's bug); the requested version built fine. Add post-build version assertion in `Invoke-AGPostBuildPublish`; source-manifest stamping stays, committed only at release.
+- [Pester tests vs artifact layout](issues/05-pester-tests-vs-artifact-layout.md) — rewrite tests to `$PSScriptRoot` → `Artefacts/Unpacked/ADCSGoat/ADCSGoat.psd1`; drop dead BuildHelpers `BH*` env vars (PSStucco fossils); delete the changelog-version-match assertion (release-time concern, covered by 04+11).
 
 ## Not yet specified
 
