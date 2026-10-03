@@ -12,8 +12,10 @@ function New-AGTemplateOid {
         OID-to-display-name mapping that the Certificate Templates MMC snap-in
         and certutil resolve.
 
-        The companion object's cn carries the ADCSGoat ownership marker so the
-        deploy-time collision contract can classify it as owned or foreign.
+        The companion class has no description attribute, so companion
+        ownership for teardown/replacement is established by OID equality
+        against the owned template object (see Remove-AGTemplate), never by
+        inspecting the companion's cn.
 
     .PARAMETER TemplateName
         The display name the new OID resolves to (the destination template's
@@ -67,7 +69,9 @@ function New-AGTemplateOid {
     process {
         $forestBase = "$($oidContainer.Properties['msPKI-Cert-Template-OID'].Value)"
         if ([string]::IsNullOrEmpty($forestBase)) {
-            throw "Forest base OID not found at '$oidContainerDN' (msPKI-Cert-Template-OID is empty). Is AD CS installed in this forest?"
+            $exception = New-Object System.InvalidOperationException("Forest base OID not found at '$oidContainerDN' (msPKI-Cert-Template-OID is empty). Is AD CS installed in this forest?")
+            $errorRecord = New-Object System.Management.Automation.ErrorRecord($exception, 'ForestBaseOidNotFound', [System.Management.Automation.ErrorCategory]::ObjectNotFound, $oidContainerDN)
+            $PSCmdlet.ThrowTerminatingError($errorRecord)
         }
 
         # Two random numeric segments per the observed Microsoft pattern.
@@ -97,6 +101,9 @@ function New-AGTemplateOid {
 
         $oidContainer.Dispose()
 
-        Write-Output $templateOid
+        Write-Output ([pscustomobject]@{
+            Oid               = $templateOid
+            CompanionObjectDN = "CN=$companionCn,$oidContainerDN"
+        })
     }
 }
