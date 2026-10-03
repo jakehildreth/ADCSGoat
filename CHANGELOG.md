@@ -7,7 +7,7 @@
 
 ### Changed
 
-- Default all lab VMs to Windows Server 2025 Datacenter Desktop Experience.
+- Default all lab VMs to Windows Server 2025 Standard Desktop Experience.
 - Use a 2 GB dynamic-memory minimum, 4 GB startup suggestion, and maximum memory of at least 4 GB or the selected startup value.
 - Declare AutomatedLab and PSFramework as installation dependencies in the source manifest and PSPublishModule build configuration.
 - Replace obsolete static metadata/help test scaffolding with behavior checks at the deployment boundary.

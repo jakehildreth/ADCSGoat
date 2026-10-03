@@ -52,7 +52,7 @@ function Deploy-AGInfrastructure {
 
     .NOTES
     Requires an administrative Hyper-V host and media that enumerates as
-    Windows Server 2025 Datacenter (Desktop Experience). Evaluation images have
+    Windows Server 2025 Standard (Desktop Experience). Evaluation images have
     a different identifier. Memory units use PowerShell's binary GB constant.
     AutomatedLab and PSFramework load as module requirements.
     #>
@@ -350,7 +350,7 @@ Privileged Access Workstation IP: <c='em'>$PAWIP</c>
         'Add-LabMachineDefinition:DomainName'      = $Domain
         'Add-LabMachineDefinition:Gateway'         = $Gateway
         'Add-LabMachineDefinition:DnsServer1'      = $DCIP
-        'Add-LabMachineDefinition:OperatingSystem' = 'Windows Server 2025 Datacenter (Desktop Experience)'
+        'Add-LabMachineDefinition:OperatingSystem' = 'Windows Server 2025 Standard (Desktop Experience)'
     }
 
     $dcResources = $effectiveResources['DC']
