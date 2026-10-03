@@ -19,22 +19,25 @@ ADCSGoat creates vulnerable Active Directory Certificate Services (AD CS) certif
 
 ## Prerequisites
 
-- Windows Server with Active Directory and AD CS installed
-- [AutomatedLab](https://automatedlab.org/) (for infrastructure deployment)
-- [PSCertutil](https://github.com/jakehildreth/PSCertutil) module
 - PowerShell 5.1+
+- For infrastructure deployment: an administrative Hyper-V host and matching Windows Server 2025 Standard Desktop Experience media
+- For template configuration: a domain with Active Directory and an enterprise AD CS CA
+- [PSCertutil](https://github.com/jakehildreth/PSCertutil) is bundled in the built package; source imports require it separately
 
 ## Installation
 
 ```powershell
-Install-Module -Name ADCSGoat AllowPrerelase
+Install-Module -Name ADCSGoat
 ```
+
+Installation also installs [AutomatedLab](https://automatedlab.org/) and [PSFramework](https://psframework.org/). Importing ADCSGoat loads both and AutomatedLab's dependency graph, including on a host that only configures an existing CA. AutomatedLab initialization can access the network and its application-data folder. Installation does not enable Hyper-V or supply OS media.
 
 Or clone the repo and import directly:
 
 ```powershell
+Install-Module -Name AutomatedLab, PSFramework, PSCertutil
 git clone https://github.com/jakehildreth/ADCSGoat.git
-Import-Module .\ADCSGoat\ADCSGoat\ADCSGoat.psd1
+Import-Module .\ADCSGoat\ADCSGoat.psd1
 ```
 
 ## Quick Start
@@ -49,6 +52,32 @@ Install-ADCSGoat
 # Clean up when done
 Uninstall-ADCSGoat
 ```
+
+## Deployment resources
+
+`Deploy-AGInfrastructure` uses Windows Server 2025 Standard Desktop Experience for DC, CA, and PAW. Confirm the exact image name with `Get-LabAvailableOperatingSystem` before deployment. Evaluation media uses a different identifier.
+
+Each VM starts with these editable suggestions:
+
+| VM | Minimum RAM | Startup RAM | Maximum RAM | CPUs |
+|----|-------------|-------------|-------------|------|
+| DC | 2 GB | 4 GB | 4 GB | 2 |
+| CA | 2 GB | 4 GB | 4 GB | 2 |
+| PAW | 2 GB | 4 GB | 4 GB | 2 |
+
+Press Enter to accept a suggestion. Edit startup RAM in whole GB (2–128) and CPUs as a whole number (1–64). Dynamic maximum RAM increases when startup RAM exceeds 4 GB. Memory uses PowerShell's binary `GB` unit; reserve host RAM in addition to the 12 GB guest startup total.
+
+For scripted deployment, supply per-VM overrides in bytes and use `-NonInteractive`:
+
+```powershell
+Deploy-AGInfrastructure -Name Goat2025 -Domain goat2025.test `
+    -ExternalSwitch 'External Switch' `
+    -VMResources @{ DC = @{ Memory = 8GB; Processors = 4 } } -NonInteractive
+```
+
+Omitted roles and fields keep their suggestions. Noninteractive mode requires unique names, an existing switch, and prepared AutomatedLab host remoting; it reports an error instead of requesting input or enabling remoting policies. The legacy `-Confirm` switch skips only the final confirmation, not resource prompts.
+
+See [deployment help](Docs/en-US/Deploy-AGInfrastructure.md) for details. Server 2025 security defaults and certificate-mapping enforcement can affect attack demonstrations; configured misconfigurations do not guarantee every historic attack path succeeds.
 
 ## Commands
 
