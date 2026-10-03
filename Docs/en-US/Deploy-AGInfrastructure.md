@@ -21,7 +21,7 @@ Deploy-AGInfrastructure [[-Name] <Object>] [[-Domain] <Object>] [[-ExternalSwitc
 
 ## DESCRIPTION
 
-Defines a domain controller (DC), certification authority (CA), and privileged access workstation (PAW) with AutomatedLab and Hyper-V. All three VMs use `Windows Server 2025 Datacenter (Desktop Experience)`.
+Defines a domain controller (DC), certification authority (CA), and privileged access workstation (PAW) with AutomatedLab and Hyper-V. All three VMs use `Windows Server 2025 Standard (Desktop Experience)`.
 
 Interactive deployment suggests startup memory and CPUs for each VM. Press Enter to accept a suggestion. Enter startup memory as a whole number of GB, from 2 to 128, and CPUs as a whole number from 1 to 64. Invalid input shows a warning and repeats the same prompt.
 
@@ -111,7 +111,7 @@ None. Writes deployment status and configuration to the host.
 
 Run as an administrator on a Hyper-V host. AutomatedLab and PSFramework load as required modules; installing ADCSGoat through the Gallery installs both dependencies. Installation does not enable Hyper-V, supply an OS ISO, or grant administrative rights.
 
-Before deployment, use `Get-LabAvailableOperatingSystem` to verify that the configured media contains the exact `Windows Server 2025 Datacenter (Desktop Experience)` image. The Evaluation image has a different identifier and is not selected by this default.
+Before deployment, use `Get-LabAvailableOperatingSystem` to verify that the configured media contains the exact `Windows Server 2025 Standard (Desktop Experience)` image. The Evaluation image has a different identifier and is not selected by this default.
 
 Server 2025 security defaults and current certificate-mapping enforcement can affect attack demonstrations. Configuring an ESC scenario does not prove that every historic attack path succeeds. Do not disable security policies merely to hide a deployment or authentication failure.
 

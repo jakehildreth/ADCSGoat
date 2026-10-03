@@ -20,7 +20,7 @@ ADCSGoat creates vulnerable Active Directory Certificate Services (AD CS) certif
 ## Prerequisites
 
 - PowerShell 5.1+
-- For infrastructure deployment: an administrative Hyper-V host and matching Windows Server 2025 Datacenter Desktop Experience media
+- For infrastructure deployment: an administrative Hyper-V host and matching Windows Server 2025 Standard Desktop Experience media
 - For template configuration: a domain with Active Directory and an enterprise AD CS CA
 - [PSCertutil](https://github.com/jakehildreth/PSCertutil) is bundled in the built package; source imports require it separately
 
@@ -55,7 +55,7 @@ Uninstall-ADCSGoat
 
 ## Deployment resources
 
-`Deploy-AGInfrastructure` uses Windows Server 2025 Datacenter Desktop Experience for DC, CA, and PAW. Confirm the exact image name with `Get-LabAvailableOperatingSystem` before deployment. Evaluation media uses a different identifier.
+`Deploy-AGInfrastructure` uses Windows Server 2025 Standard Desktop Experience for DC, CA, and PAW. Confirm the exact image name with `Get-LabAvailableOperatingSystem` before deployment. Evaluation media uses a different identifier.
 
 Each VM starts with these editable suggestions:
 
