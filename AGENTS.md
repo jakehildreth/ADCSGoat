@@ -4,7 +4,7 @@
 
 ### Issue tracker
 
-Issues live as markdown files under `.scratch/<feature>/` in this repo. See `Docs/agents/issue-tracker.md`.
+Issues and specs live in GitHub Issues for `jakehildreth/ADCSGoat`. See `Docs/agents/issue-tracker.md`.
 
 ### Triage labels
 
@@ -12,4 +12,4 @@ Default five-role vocabulary (`needs-triage`, `needs-info`, `ready-for-agent`, `
 
 ### Domain docs
 
-Single-context: `CONTEXT.md` + `docs/adr/` at the repo root, created lazily. See `Docs/agents/domain.md`.
+Single-context: `CONTEXT.md` + `Docs/adr/` at the repo root, created lazily. See `Docs/agents/domain.md`.
