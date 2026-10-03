@@ -42,10 +42,9 @@ if (Get-Module -Name 'PSPublishModule' -ListAvailable) {
 
 Import-Module -Name PSPublishModule -Force
 
-# Ensure vendored dependencies are available so PSPublishModule can resolve
-# function calls to their source module during analysis (required for
-# New-ConfigurationModuleSkip -IgnoreModuleName to match correctly).
-foreach ($depName in @('PSCertutil')) {
+# Ensure declared runtime dependencies and vendored functions are available
+# for build-time analysis and module imports.
+foreach ($depName in @('PSCertutil', 'AutomatedLab', 'PSFramework')) {
     if (-not (Get-Module -Name $depName -ListAvailable)) {
         Write-Host "Installing $depName for build-time analysis..."
         Install-Module -Name $depName -Scope CurrentUser -Force -AllowClobber
@@ -81,9 +80,10 @@ Build-Module -ModuleName 'ADCSGoat' {
         'Microsoft.PowerShell.Security'
     )
 
-    # Skip modules that are either vendored post-build or are soft runtime
-    # dependencies only used by Deploy-AGInfrastructure.
-    New-ConfigurationModuleSkip -IgnoreModuleName 'PSCertutil', 'AutomatedLab', 'PSFramework'
+    New-ConfigurationModule -Type RequiredModule -Name 'AutomatedLab', 'PSFramework'
+
+    # PSCertutil remains vendored by the post-build hook.
+    New-ConfigurationModuleSkip -IgnoreModuleName 'PSCertutil'
 
     $ConfigurationFormat = [ordered] @{
         RemoveComments                              = $false

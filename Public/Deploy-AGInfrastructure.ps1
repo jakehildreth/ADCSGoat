@@ -1,7 +1,60 @@
 function Deploy-AGInfrastructure {
     <#
-    TODO: Create 'PAW' as a Custom Role that includes RSAT.
-    TODO: Accept Roles as Parameter.
+    .SYNOPSIS
+    Deploys a three-VM Windows Server 2025 Desktop Experience AD CS lab.
+
+    .DESCRIPTION
+    Defines a domain controller, certification authority, and privileged access
+    workstation with AutomatedLab and Hyper-V. Prompts for each VM's startup
+    memory and processor count. Enter accepts the suggestion. Dynamic memory
+    uses a 2 GB minimum and the greater of 4 GB or startup memory as its maximum.
+    Displays effective resources before deployment.
+
+    .PARAMETER Name
+    Lab name, up to 11 word characters. Defaults to ADCSGoat.
+
+    .PARAMETER Domain
+    Root domain name. Defaults to adcs.goat and must contain a dot.
+
+    .PARAMETER ExternalSwitch
+    Hyper-V external switch name. Interactive deployment can create it.
+
+    .PARAMETER Sources
+    LabSources root used for the VM tools path. Defaults to AutomatedLab's location.
+
+    .PARAMETER LabsRoot
+    Legacy path shown in verbose configuration. Does not change AutomatedLab storage.
+
+    .PARAMETER Confirm
+    Legacy switch that skips final deployment confirmation, not resource prompts.
+
+    .PARAMETER VMResources
+    Per-VM overrides keyed by DC, CA, and PAW. Each dictionary accepts Memory
+    in bytes (2 GB to 128 GB) and Processors (1 to 64). Unspecified values use
+    4 GB startup memory and 2 processors. For example: @{ DC = @{ Memory = 8GB } }.
+    Interactive prompts start from these overrides and can change them.
+
+    .PARAMETER NonInteractive
+    Accepts effective resource values and skips all prompts. A duplicate lab
+    name or domain, a missing switch, or unprepared host remoting terminates
+    with an error. Host remoting must be configured separately.
+
+    .EXAMPLE
+    Deploy-AGInfrastructure
+    Prompts for resources and confirms deployment using the suggested profile.
+
+    .EXAMPLE
+    Deploy-AGInfrastructure -Name Goat2025 -Domain goat2025.test -ExternalSwitch 'External Switch' -VMResources @{ DC = @{ Memory = 8GB; Processors = 4 } } -NonInteractive
+    Deploys without input requests, using an existing switch and per-VM overrides.
+
+    .OUTPUTS
+    None. Writes deployment status and configuration to the host.
+
+    .NOTES
+    Requires an administrative Hyper-V host and media that enumerates as
+    Windows Server 2025 Datacenter (Desktop Experience). Evaluation images have
+    a different identifier. Memory units use PowerShell's binary GB constant.
+    AutomatedLab and PSFramework load as module requirements.
     #>
 
     [CmdletBinding()]
@@ -13,12 +66,64 @@ function Deploy-AGInfrastructure {
         $ExternalSwitch = 'External Switch',
         $Sources = (Get-LabSourcesLocation),
         $LabsRoot = "$((Get-PSFConfig -Module AutomatedLab -Name LabAppDataRoot).Value)\Labs", # Not currently needed, but I like it.,
-        [switch]$Confirm
+        [switch]$Confirm,
+        [ValidateNotNull()]
+        [hashtable]$VMResources = @{},
+        [switch]$NonInteractive
     )
 
-    <#
-    #requires -Modules Hyper-V, AutomatedLab -Version 7 -RunAsAdministrator
-    #>
+    $roles = @('DC', 'CA', 'PAW')
+    $effectiveResources = @{}
+    foreach ($role in $roles) {
+        $effectiveResources[$role] = @{ Memory = 4GB; Processors = 2 }
+    }
+
+    foreach ($role in $VMResources.Keys) {
+        $resourceError = $null
+        $overrides = $VMResources[$role]
+        if ($role -notin $roles) {
+            $resourceError = "Unknown VM role '$role'. Use DC, CA, or PAW."
+        } elseif ($overrides -isnot [System.Collections.IDictionary]) {
+            $resourceError = "VMResources '$role' must be a dictionary of Memory and Processors."
+        } else {
+            foreach ($field in $overrides.Keys) {
+                [long]$value = 0
+                if ($field -notin @('Memory', 'Processors')) {
+                    $resourceError = "Unknown resource '$field' for '$role'. Use Memory or Processors."
+                } elseif (-not [long]::TryParse([string]$overrides[$field], [ref]$value)) {
+                    $resourceError = "Resource '$field' for '$role' must be an integer. Specify Memory in bytes, for example 8GB."
+                } elseif ($field -eq 'Memory' -and ($value -lt 2GB -or $value -gt 128GB)) {
+                    $resourceError = "Startup memory for '$role' must be between 2 GB and 128 GB."
+                } elseif ($field -eq 'Processors' -and ($value -lt 1 -or $value -gt 64)) {
+                    $resourceError = "Processors for '$role' must be between 1 and 64."
+                } else {
+                    $effectiveResources[$role][$field] = $value
+                }
+
+                if ($resourceError) { break }
+            }
+        }
+
+        if ($resourceError) {
+            $errorRecord = [System.Management.Automation.ErrorRecord]::new(
+                [System.ArgumentException]::new($resourceError),
+                'InvalidVMResources',
+                [System.Management.Automation.ErrorCategory]::InvalidArgument,
+                $overrides
+            )
+            $PSCmdlet.ThrowTerminatingError($errorRecord)
+        }
+    }
+
+    if ($NonInteractive.IsPresent -and -not (Test-LabHostRemoting -ErrorAction Stop)) {
+        $errorRecord = [System.Management.Automation.ErrorRecord]::new(
+            [System.InvalidOperationException]::new('Prepare host remoting for AutomatedLab before using -NonInteractive.'),
+            'HostRemotingNotReady',
+            [System.Management.Automation.ErrorCategory]::ResourceUnavailable,
+            $env:COMPUTERNAME
+        )
+        $PSCmdlet.ThrowTerminatingError($errorRecord)
+    }
 
     Write-Verbose -Message @"
 
@@ -35,6 +140,15 @@ LabRoot        = $LabsRoot
 
     # Confirm lab name is unique on this host.
     while ((Get-Lab -List) -contains $Name) {
+        if ($NonInteractive.IsPresent) {
+            $errorRecord = [System.Management.Automation.ErrorRecord]::new(
+                [System.InvalidOperationException]::new("A lab named '$Name' already exists. Specify a unique -Name."),
+                'LabNameInUse',
+                [System.Management.Automation.ErrorCategory]::ResourceExists,
+                $Name
+            )
+            $PSCmdlet.ThrowTerminatingError($errorRecord)
+        }
         Write-Host
         Write-Warning -Message "A lab named `"$Name`" already exists on this host."
         Write-Host "Please select a new lab name: " -NoNewline
@@ -53,6 +167,15 @@ LabRoot        = $LabsRoot
 
     # Confirm root domain name is unique on this host.
     while ($ExistingDomains.DomainName -contains $Domain) {
+        if ($NonInteractive.IsPresent) {
+            $errorRecord = [System.Management.Automation.ErrorRecord]::new(
+                [System.InvalidOperationException]::new("Domain '$Domain' is already used by another lab. Specify a unique -Domain."),
+                'DomainInUse',
+                [System.Management.Automation.ErrorCategory]::ResourceExists,
+                $Domain
+            )
+            $PSCmdlet.ThrowTerminatingError($errorRecord)
+        }
         Write-Host
         Write-Warning -Message "A lab using the domain `"$Domain`" already exists on this host."
         Write-Host "Please select a new root domain name: " -NoNewline
@@ -61,6 +184,15 @@ LabRoot        = $LabsRoot
 
     # Create a Hyper-V External Switch if none exists.
     while (-not (Get-VMSwitch | Where-Object Name -EQ $ExternalSwitch)) {
+        if ($NonInteractive.IsPresent) {
+            $errorRecord = [System.Management.Automation.ErrorRecord]::new(
+                [System.InvalidOperationException]::new("External switch '$ExternalSwitch' does not exist. Create it before noninteractive deployment."),
+                'ExternalSwitchNotFound',
+                [System.Management.Automation.ErrorCategory]::ObjectNotFound,
+                $ExternalSwitch
+            )
+            $PSCmdlet.ThrowTerminatingError($errorRecord)
+        }
         #region Select NetAdapter for Use in Lab
         $netIPAddressCollection = Get-NetIPAddress | Where-Object {
             $_.IPAddress -notmatch '^169.254|^127.0.0' -and
@@ -126,7 +258,6 @@ Select the network adapter you'd like to use in your lab.
 
     # Pick IP Addresses for new VMs
     $NewIPs = @{}
-    $Roles = @('DC', 'CA', 'PAW')
     $RoleIndex = 0
 
     for ($i = 3; $i -lt 255 -and $RoleIndex -lt $Roles.Count; $i++) {
@@ -142,8 +273,45 @@ Select the network adapter you'd like to use in your lab.
         New-Variable -Name "${_}IP" -Value $NewIPs[$_]
     }
 
-    if (-not $Confirm) {
-        Write-PSFHostColor @"
+    if (-not $NonInteractive.IsPresent) {
+        foreach ($role in $roles) {
+            foreach ($field in @('Memory', 'Processors')) {
+                $label = if ($field -eq 'Memory') { 'startup memory in GB' } else { 'processors' }
+                $suggestion = if ($field -eq 'Memory') {
+                    $effectiveResources[$role].Memory / 1GB
+                } else {
+                    $effectiveResources[$role].Processors
+                }
+                $minimum = if ($field -eq 'Memory') { 2 } else { 1 }
+                $maximum = if ($field -eq 'Memory') { 128 } else { 64 }
+
+                while ($true) {
+                    $inputValue = Read-Host -Prompt "$role $label [$suggestion]"
+                    if ([string]::IsNullOrWhiteSpace($inputValue)) { break }
+
+                    [long]$enteredValue = 0
+                    if ([long]::TryParse($inputValue, [ref]$enteredValue) -and
+                        $enteredValue -ge $minimum -and $enteredValue -le $maximum) {
+                        $effectiveResources[$role][$field] = if ($field -eq 'Memory') {
+                            $enteredValue * 1GB
+                        } else {
+                            $enteredValue
+                        }
+                        break
+                    }
+
+                    Write-Warning -Message "$role $label must be a whole number between $minimum and $maximum."
+                }
+            }
+        }
+    }
+
+    foreach ($role in $roles) {
+        $effectiveResources[$role].MinMemory = 2GB
+        $effectiveResources[$role].MaxMemory = [Math]::Max([long]4GB, [long]$effectiveResources[$role].Memory)
+    }
+
+    Write-PSFHostColor @"
 ----------------------------------------------------
 |                Lab Configuration                 |
 ----------------------------------------------------
@@ -156,9 +324,17 @@ Certification Authority IP:       <c='em'>$CAIP</c>
 Privileged Access Workstation IP: <c='em'>$PAWIP</c>
 "@
 
-        $Answer = Get-PSFUserChoice -Caption 'Continue with deployment?' -Options Yes, No
+    Write-Host "`nVM resources (dynamic memory):"
+    foreach ($role in $roles) {
+        $resources = $effectiveResources[$role]
+        Write-Host ('{0,-16} Min {1:g} GB | Startup {2:g} GB | Max {3:g} GB | CPUs {4}' -f
+            "$Name-$role", ($resources.MinMemory / 1GB), ($resources.Memory / 1GB),
+            ($resources.MaxMemory / 1GB), $resources.Processors)
+    }
 
-        if ($Answer -eq 1) { exit }
+    if (-not $Confirm.IsPresent -and -not $NonInteractive.IsPresent) {
+        $Answer = Get-PSFUserChoice -Caption 'Continue with deployment?' -Options Yes, No
+        if ($Answer -eq 1) { return }
     }
 
     # Define the lab + hypervisor
@@ -171,19 +347,18 @@ Privileged Access Workstation IP: <c='em'>$PAWIP</c>
     $PSDefaultParameterValues = @{
         'Add-LabMachineDefinition:Network'         = $ExternalSwitch
         'Add-LabMachineDefinition:ToolsPath'       = "$Sources\Tools"
-        'Add-LabMachineDefinition:MinMemory'       = 512MB
-        'Add-LabMachineDefinition:Memory'          = 1GB
-        'Add-LabMachineDefinition:MaxMemory'       = 4GB
-        'Add-LabMachineDefinition:Processors'      = 2
         'Add-LabMachineDefinition:DomainName'      = $Domain
         'Add-LabMachineDefinition:Gateway'         = $Gateway
         'Add-LabMachineDefinition:DnsServer1'      = $DCIP
-        'Add-LabMachineDefinition:OperatingSystem' = 'Windows Server 2022 Datacenter (Desktop Experience)'
+        'Add-LabMachineDefinition:OperatingSystem' = 'Windows Server 2025 Datacenter (Desktop Experience)'
     }
 
-    Add-LabMachineDefinition -Name "$Name-DC" -Roles RootDC -IpAddress $DCIP
-    Add-LabMachineDefinition -Name "$Name-CA" -Roles CaRoot -IpAddress $CAIP
-    Add-LabMachineDefinition -Name "$Name-PAW" -IpAddress $PAWIP
+    $dcResources = $effectiveResources['DC']
+    $caResources = $effectiveResources['CA']
+    $pawResources = $effectiveResources['PAW']
+    Add-LabMachineDefinition -Name "$Name-DC" -Roles RootDC -IpAddress $DCIP @dcResources
+    Add-LabMachineDefinition -Name "$Name-CA" -Roles CaRoot -IpAddress $CAIP @caResources
+    Add-LabMachineDefinition -Name "$Name-PAW" -IpAddress $PAWIP @pawResources
 
     Install-Lab
 
