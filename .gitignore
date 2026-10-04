@@ -4,4 +4,7 @@ Artefacts/
 
 scratch/
 
+# Deploy state file written next to the module by Deploy-ADCSGoat
+ADCSGoat.State.xml
+
 testResults.xml

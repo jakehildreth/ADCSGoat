@@ -83,6 +83,7 @@ See [deployment help](Docs/en-US/Deploy-AGInfrastructure.md) for details. Server
 
 | Command | Description |
 |---------|-------------|
+| `Deploy-ADCSGoat` | Runs the deploy spine: selects the CA, prints the preflight report, writes the state file — before any AD write |
 | `Deploy-AGInfrastructure` | Deploys a Hyper-V lab using AutomatedLab |
 | `Install-ADCSGoat` | Creates all vulnerable templates and CA misconfigs |
 | `Uninstall-ADCSGoat` | Removes all ADCSGoat templates and reverts CA changes |
@@ -91,6 +92,7 @@ See [deployment help](Docs/en-US/Deploy-AGInfrastructure.md) for details. Server
 | `Set-AGTemplateAce` | Adds ACEs to a certificate template |
 | `Set-AGTemplateProperty` | Sets properties on a certificate template |
 | `Set-AGEnrollmentServiceFullName` | Adds a FullName property to an Enrollment Service object |
+| `Copy-AGTemplate` | Clones a built-in certificate template with fresh OID and collision handling |
 
 ## License
 
