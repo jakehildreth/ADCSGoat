@@ -4,10 +4,11 @@
 
 - Offer editable startup memory and CPU suggestions for DC, CA, and PAW, with per-VM overrides and a noninteractive deployment mode.
 - Cover invalid resource settings and noninteractive deployment conflicts with public-command regression tests.
-- Add deploy spine (`Deploy-ADCSGoat`) for the four replacement scenarios: selected-CA contract, preflight report, and state file — demoable on its own with zero AD writes
+- Add deploy entrypoint (`Deploy-ADCSGoat`) for the four replacement scenarios: selected-CA contract, preflight report, and state file — demoable on its own with zero AD writes
 - Add selected-CA resolution (`Get-AGEnrollmentService`): optional `-CAName`, single-CA autodetect, multi-CA/invalid-name errors before any AD write
 - Add preflight report (`Test-AGDeployPreflight`): hard prerequisites (selected CA resolves, Web Server name-flag bit 0x1, Domain Users can enroll in User) abort with prerequisite errors naming check + remediation
 - Add machine-readable deploy state file (`New-AGDeployState`/`Save-AGDeployState`/`Read-AGDeployState`): captures selected CA identity, pre-change certificateTemplates list, and pre-change nTSecurityDescriptor (SDDL + binary) before any AD write; per-clone records appended as scenarios deploy
+- Add ESC1 scenario deploy (`Deploy-AGEsc1`): clones Web Server to 'Copy of Web Server', appends Client Authentication to both EKU attributes (preserving Server Auth), grants Domain Users Read + Enroll on the copied DACL, publishes on the selected CA, and records the clone in the state file; Web Server source left byte-identical
 
 ### Changed
 
