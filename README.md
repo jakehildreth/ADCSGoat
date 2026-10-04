@@ -94,6 +94,7 @@ See [deployment help](Docs/en-US/Deploy-AGInfrastructure.md) for details. Server
 | `Set-AGEnrollmentServiceFullName` | Adds a FullName property to an Enrollment Service object |
 | `Copy-AGTemplate` | Clones a built-in certificate template with fresh OID and collision handling |
 | `Deploy-AGEsc1` | Deploys the ESC1 scenario: clones Web Server, adds Client Auth, grants Domain Users enroll, publishes on the CA |
+| `Deploy-AGEsc4` | Deploys the ESC4 scenario: clones Web Server to Test SSL, grants Domain Users Full Control, publishes on the CA |
 
 ## License
 

@@ -9,6 +9,8 @@
 - Add preflight report (`Test-AGDeployPreflight`): hard prerequisites (selected CA resolves, Web Server name-flag bit 0x1, Domain Users can enroll in User) abort with prerequisite errors naming check + remediation
 - Add machine-readable deploy state file (`New-AGDeployState`/`Save-AGDeployState`/`Read-AGDeployState`): captures selected CA identity, pre-change certificateTemplates list, and pre-change nTSecurityDescriptor (SDDL + binary) before any AD write; per-clone records appended as scenarios deploy
 - Add ESC1 scenario deploy (`Deploy-AGEsc1`): clones Web Server to 'Copy of Web Server', appends Client Authentication to both EKU attributes (preserving Server Auth), grants Domain Users Read + Enroll on the copied DACL, publishes on the selected CA, and records the clone in the state file; Web Server source left byte-identical
+- Add ESC4 scenario deploy (`Deploy-AGEsc4`): clones Web Server to 'Test SSL' with zero attribute overrides, grants Domain Users Full Control on the copied DACL, publishes on the selected CA, and records the clone in the state file; Web Server source left byte-identical
+- Add shared scenario pipeline (`Invoke-AGTemplateScenario`): the clone -> recipe -> rights -> publish -> record-state sequence every scenario deploy rides; scenario functions supply only the recipe and rights scriptblocks
 
 ### Changed
 
