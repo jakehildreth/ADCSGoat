@@ -39,9 +39,20 @@ function Invoke-AGTemplateScenario {
         scenarios with no attribute overrides.
 
     .PARAMETER AccessRules
-        A scriptblock invoked as `& $AccessRules $domainUsersSid` that
-        returns the ActiveDirectoryAccessRule objects to grant on the clone.
-        Omit for scenarios that grant no template rights.
+        A scriptblock invoked as `& $AccessRules $principalSid` that returns
+        the ActiveDirectoryAccessRule objects to grant on the clone.
+        $principalSid is the SID of the principal named by -Principal. Omit
+        for scenarios that grant no template rights.
+
+    .PARAMETER Principal
+        Which principal the -AccessRules scriptblock builds ACEs for:
+        'DomainUsers' (resolved from the forest) or 'AuthenticatedUsers' (the
+        well-known SID S-1-5-11). Defaults to 'DomainUsers'.
+
+    .PARAMETER AlsoPublishTemplate
+        An additional built-in template cn to publish on the selected CA if
+        not already published (e.g. the ESC3 chain's User template). Its ACL
+        is never touched.
 
     .PARAMETER CAName
         The cn of the enterprise CA to publish to. Optional; autodetected
@@ -81,6 +92,20 @@ function Invoke-AGTemplateScenario {
 
         [Parameter()]
         [scriptblock]$AccessRules,
+
+        # Which principal the -AccessRules scriptblock builds ACEs for. Domain
+        # Users is resolved from the forest; Authenticated Users is the
+        # well-known SID S-1-5-11.
+        [Parameter()]
+        [ValidateSet('DomainUsers', 'AuthenticatedUsers')]
+        [string]$Principal = 'DomainUsers',
+
+        # An additional built-in template cn to publish on the selected CA if
+        # not already published (e.g. the ESC3 chain's User template). Its ACL
+        # is never touched.
+        [Parameter()]
+        [ValidateNotNullOrEmpty()]
+        [string]$AlsoPublishTemplate,
 
         [Parameter()]
         [ValidateNotNullOrEmpty()]
@@ -144,9 +169,13 @@ function Invoke-AGTemplateScenario {
 
         # 3. Rights: layer the caller's ACEs on the copied DACL, if any.
         if ($PSBoundParameters.ContainsKey('AccessRules') -and $null -ne $AccessRules) {
-            $domainSid = (New-Object System.Security.Principal.NTAccount((Get-ADDomainNameFromNc -ConfigurationNC $configurationPartition @helperParams), 'Domain Users')).Translate([System.Security.Principal.SecurityIdentifier])
+            $principalSid = if ($Principal -eq 'AuthenticatedUsers') {
+                New-Object System.Security.Principal.SecurityIdentifier('S-1-5-11')
+            } else {
+                (New-Object System.Security.Principal.NTAccount((Get-ADDomainNameFromNc -ConfigurationNC $configurationPartition @helperParams), 'Domain Users')).Translate([System.Security.Principal.SecurityIdentifier])
+            }
             $sd = $clone.ObjectSecurity
-            foreach ($rule in @(& $AccessRules $domainSid)) {
+            foreach ($rule in @(& $AccessRules $principalSid)) {
                 $sd.AddAccessRule($rule)
             }
             $clone.ObjectSecurity = $sd
@@ -156,11 +185,20 @@ function Invoke-AGTemplateScenario {
         $postSetupSddl = $clone.ObjectSecurity.GetSecurityDescriptorSddlForm([System.Security.AccessControl.AccessControlSections]::All)
         $clone.Dispose()
 
-        # 4. Publish on the selected CA.
+        # 4. Publish the clone on the selected CA, plus any additional built-in
+        #    template the scenario depends on (e.g. the ESC3 chain's User
+        #    template). Publish is additive; an already-published template is
+        #    left as-is and its ACL is never touched.
         $caEntry = New-Object System.DirectoryServices.DirectoryEntry("$serverPrefix$($selectedCA.DistinguishedName)")
         $published = @($caEntry.Properties['certificateTemplates'] | ForEach-Object { "$_" })
         if ($published -notcontains $cloneCn) {
             $caEntry.PutEx(3, 'certificateTemplates', @($cloneCn))   # ADS_PROPERTY_APPEND
+            $caEntry.SetInfo()
+            $caEntry.RefreshCache()
+            $published = @($caEntry.Properties['certificateTemplates'] | ForEach-Object { "$_" })
+        }
+        if ($PSBoundParameters.ContainsKey('AlsoPublishTemplate') -and $published -notcontains $AlsoPublishTemplate) {
+            $caEntry.PutEx(3, 'certificateTemplates', @($AlsoPublishTemplate))
             $caEntry.SetInfo()
         }
         $caEntry.Dispose()
