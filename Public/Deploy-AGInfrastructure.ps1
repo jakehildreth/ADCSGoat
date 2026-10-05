@@ -1,7 +1,7 @@
 function Deploy-AGInfrastructure {
     <#
     .SYNOPSIS
-    Deploys a three-VM Windows Server 2025 Desktop Experience AD CS lab.
+    Deploys a three-VM Windows Server 2022 Standard Desktop Experience AD CS lab.
 
     .DESCRIPTION
     Defines a domain controller, certification authority, and privileged access
@@ -44,7 +44,7 @@ function Deploy-AGInfrastructure {
     Prompts for resources and confirms deployment using the suggested profile.
 
     .EXAMPLE
-    Deploy-AGInfrastructure -Name Goat2025 -Domain goat2025.test -ExternalSwitch 'External Switch' -VMResources @{ DC = @{ Memory = 8GB; Processors = 4 } } -NonInteractive
+    Deploy-AGInfrastructure -Name Goat2022 -Domain goat2022.test -ExternalSwitch 'External Switch' -VMResources @{ DC = @{ Memory = 8GB; Processors = 4 } } -NonInteractive
     Deploys without input requests, using an existing switch and per-VM overrides.
 
     .OUTPUTS
@@ -52,7 +52,7 @@ function Deploy-AGInfrastructure {
 
     .NOTES
     Requires an administrative Hyper-V host and media that enumerates as
-    Windows Server 2025 Standard (Desktop Experience). Evaluation images have
+    Windows Server 2022 Standard (Desktop Experience). Evaluation images have
     a different identifier. Memory units use PowerShell's binary GB constant.
     AutomatedLab and PSFramework load as module requirements.
     #>
@@ -350,7 +350,7 @@ Privileged Access Workstation IP: <c='em'>$PAWIP</c>
         'Add-LabMachineDefinition:DomainName'      = $Domain
         'Add-LabMachineDefinition:Gateway'         = $Gateway
         'Add-LabMachineDefinition:DnsServer1'      = $DCIP
-        'Add-LabMachineDefinition:OperatingSystem' = 'Windows Server 2025 Standard (Desktop Experience)'
+        'Add-LabMachineDefinition:OperatingSystem' = 'Windows Server 2022 Standard (Desktop Experience)'
     }
 
     $dcResources = $effectiveResources['DC']
