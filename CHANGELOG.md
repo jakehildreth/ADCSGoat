@@ -17,12 +17,13 @@
 
 - Default all lab VMs to Windows Server 2022 Standard Desktop Experience.
 - Use a 2 GB dynamic-memory minimum, 4 GB startup suggestion, and maximum memory of at least 4 GB or the selected startup value.
-- Declare AutomatedLab and PSFramework as installation dependencies in the source manifest and PSPublishModule build configuration.
+- Make AutomatedLab and PSFramework deployment-only dependencies instead of ADCSGoat installation requirements; importing ADCSGoat inside the VMs no longer loads them.
 - Replace obsolete static metadata/help test scaffolding with behavior checks at the deployment boundary.
 
 ### Fixed
 
 - Return control to the caller when deployment is declined instead of ending the PowerShell session.
+- Install missing AutomatedLab dependencies from PSGallery in CurrentUser scope, respecting dependency version constraints before infrastructure deployment; preserve existing compatible modules and report installation or import failures.
 
 ## [0.4.1] - 2026-02-25
 

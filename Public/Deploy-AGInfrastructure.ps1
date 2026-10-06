@@ -54,18 +54,22 @@ function Deploy-AGInfrastructure {
     Requires an administrative Hyper-V host and media that enumerates as
     Windows Server 2022 Standard (Desktop Experience). Evaluation images have
     a different identifier. Memory units use PowerShell's binary GB constant.
-    AutomatedLab and PSFramework load as module requirements.
+    AutomatedLab and its dependencies (including PSFramework) are required only
+    for this command. Missing modules and compatible versions are installed from
+    PSGallery in CurrentUser scope before import. Satisfied requirements do not
+    trigger installation. Installation or import failures terminate with
+    InfrastructureDependencyUnavailable before VM deployment.
     #>
 
     [CmdletBinding()]
     param (
-        [PsfValidatePattern('^\w{1,11}$', ErrorMessage = 'Lab name must be no longer than 11 characters and only contain letters and numbers.')]
+        [ValidatePattern('^\w{1,11}$')]
         $Name = 'ADCSGoat',
-        [PsfValidatePattern('\.', ErrorMessage = 'Domain must contain at least one dot.')]
+        [ValidatePattern('\.')]
         $Domain = 'adcs.goat',
         $ExternalSwitch = 'External Switch',
-        $Sources = (Get-LabSourcesLocation),
-        $LabsRoot = "$((Get-PSFConfig -Module AutomatedLab -Name LabAppDataRoot).Value)\Labs", # Not currently needed, but I like it.,
+        $Sources,
+        $LabsRoot,
         [switch]$Confirm,
         [ValidateNotNull()]
         [hashtable]$VMResources = @{},
@@ -113,6 +117,66 @@ function Deploy-AGInfrastructure {
             )
             $PSCmdlet.ThrowTerminatingError($errorRecord)
         }
+    }
+
+    # Install only unsatisfied requirements; inspect manifests without initializing modules.
+    try {
+        $requirements = [System.Collections.Generic.Queue[object]]::new()
+        $requirements.Enqueue('AutomatedLab')
+        $checkedModules = [System.Collections.Generic.HashSet[string]]::new([System.StringComparer]::OrdinalIgnoreCase)
+        while ($requirements.Count -gt 0) {
+            $specification = [Microsoft.PowerShell.Commands.ModuleSpecification]$requirements.Dequeue()
+            $installedModule = Get-Module -ListAvailable -FullyQualifiedName $specification -ErrorAction Stop |
+                Sort-Object -Property Version -Descending | Select-Object -First 1
+            if (-not $installedModule) {
+                $installParameters = @{
+                    Name = $specification.Name
+                    Repository = 'PSGallery'
+                    Scope = 'CurrentUser'
+                    Force = $true
+                    ErrorAction = 'Stop'
+                }
+                if ($specification.RequiredVersion) {
+                    $installParameters.RequiredVersion = $specification.RequiredVersion
+                } else {
+                    if ($specification.Version) { $installParameters.MinimumVersion = $specification.Version }
+                    if ($specification.MaximumVersion) { $installParameters.MaximumVersion = $specification.MaximumVersion }
+                }
+                Write-Verbose -Message "Installing deployment prerequisite '$($specification.Name)' from PSGallery."
+                Install-Module @installParameters
+                $installedModule = Get-Module -ListAvailable -FullyQualifiedName $specification -ErrorAction Stop |
+                    Sort-Object -Property Version -Descending | Select-Object -First 1
+                if (-not $installedModule) {
+                    throw [System.InvalidOperationException]::new("Installed module '$($specification.Name)' does not satisfy its required version or identity.")
+                }
+            }
+            if ($checkedModules.Add($installedModule.Path) -and $installedModule.Path.EndsWith('.psd1', [System.StringComparison]::OrdinalIgnoreCase)) {
+                $dependencyManifest = Import-PowerShellDataFile -Path $installedModule.Path -ErrorAction Stop
+                foreach ($requirement in $dependencyManifest.RequiredModules) {
+                    $requirements.Enqueue($requirement)
+                }
+            }
+        }
+        Import-Module -Name AutomatedLab -ErrorAction Stop
+    } catch {
+        $message = 'Could not install or import AutomatedLab and its required dependencies before infrastructure deployment. ' +
+            'Check PSGallery access and the reported dependency error, then retry. ' +
+            "Dependency error: $($_.Exception.Message)"
+        $errorRecord = [System.Management.Automation.ErrorRecord]::new(
+            [System.InvalidOperationException]::new($message, $_.Exception),
+            'InfrastructureDependencyUnavailable',
+            [System.Management.Automation.ErrorCategory]::ResourceUnavailable,
+            'AutomatedLab'
+        )
+        $PSCmdlet.ThrowTerminatingError($errorRecord)
+    }
+
+    # Resolve dependency-backed defaults only after AutomatedLab is available.
+    if (-not $PSBoundParameters.ContainsKey('Sources')) {
+        $Sources = Get-LabSourcesLocation -ErrorAction Stop
+    }
+    if (-not $PSBoundParameters.ContainsKey('LabsRoot')) {
+        $LabsRoot = "$((Get-PSFConfig -Module AutomatedLab -Name LabAppDataRoot -ErrorAction Stop).Value)\Labs"
     }
 
     if ($NonInteractive.IsPresent -and -not (Test-LabHostRemoting -ErrorAction Stop)) {

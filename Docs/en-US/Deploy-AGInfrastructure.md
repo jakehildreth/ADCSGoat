@@ -109,7 +109,9 @@ None. Writes deployment status and configuration to the host.
 
 ## NOTES
 
-Run as an administrator on a Hyper-V host. AutomatedLab and PSFramework load as required modules; installing ADCSGoat through the Gallery installs both dependencies. Installation does not enable Hyper-V, supply an OS ISO, or grant administrative rights.
+Run as an administrator on a Hyper-V host. AutomatedLab and its dependencies (including PSFramework) are deployment-only prerequisites, not ADCSGoat installation or import requirements. This command installs missing modules from PSGallery in `CurrentUser` scope. You can prepare them manually with `Install-Module -Name AutomatedLab -Repository PSGallery -Scope CurrentUser`. Dependency installation does not enable Hyper-V, supply an OS ISO, or grant administrative rights.
+
+Before resolving dependency-backed path defaults, prompting, or deploying VMs, this command walks AutomatedLab's required-module graph. It installs each missing requirement with its minimum, maximum, or exact version constraint, checks that the installed module satisfies the requirement, then imports AutomatedLab. Only unsatisfied requirements trigger installation. If all requirements are present, deployment does not contact PSGallery for installation. An installation or import failure terminates with `InfrastructureDependencyUnavailable` and preserves the original failure. Dependency installation also runs under `-NonInteractive`.
 
 Before deployment, use `Get-LabAvailableOperatingSystem` to verify that the configured media contains the exact `Windows Server 2022 Standard (Desktop Experience)` image. The Evaluation image has a different identifier and is not selected by this default.
 
