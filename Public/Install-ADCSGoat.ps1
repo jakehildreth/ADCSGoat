@@ -1,92 +1,90 @@
 function Install-ADCSGoat {
+    <#
+    .SYNOPSIS
+        Deploys the full ADCSGoat lab by running the four scenario deploys.
+
+    .DESCRIPTION
+        Orchestrates the four-scenario design settled in ADCSGoat issue #19 and
+        completed in issue #30. Each scenario clones a built-in template,
+        applies its recipe and rights, publishes (or deliberately withholds)
+        per its design, and records state for teardown:
+
+        - ESC1        Deploy-AGEsc1       — "Copy of Web Server" (Web Server +
+                                            Client Auth), Domain Users enroll,
+                                            published.
+        - ESC4        Deploy-AGEsc4       — "Test SSL" (verbatim Web Server),
+                                            Domain Users Full Control,
+                                            published.
+        - ESC2+SchemaV1 Deploy-AGEsc3Chain — "VMware 6.x" (SubCA clone) +
+                                            built-in User published,
+                                            Authenticated Users enroll.
+        - ESC4+ESC5   Deploy-AGEsc5Chain  — "Copy of Workstation" (Workstation
+                                            clone), Domain Users Full Control,
+                                            NOT published; Authenticated Users
+                                            Full Control on the CA object.
+
+        All scenarios target a single selected enterprise CA and write a state
+        file used by Uninstall-ADCSGoat for byte-exact teardown.
+
+    .PARAMETER CAName
+        The cn of the enterprise CA to target. Optional; autodetected when the
+        forest has exactly one enterprise CA.
+
+    .PARAMETER StatePath
+        Where the deploy state file lives. Defaults to ADCSGoat.State.xml next
+        to the module root.
+
+    .PARAMETER Server
+        The domain controller to write to. Defaults to the logon server.
+
+    .PARAMETER Force
+        Replaces ADCSGoat-owned existing clones without prompting. Required for
+        non-interactive redeploy.
+
+    .EXAMPLE
+        Install-ADCSGoat
+
+        Deploys all four scenarios against the forest's single CA.
+
+    .EXAMPLE
+        Install-ADCSGoat -CAName 'LabRootCA1' -Force
+
+        Redeploys all four scenarios against the named CA.
+    #>
+    [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUseShouldProcessForStateChangingFunctions', '',
+        Justification = 'AD writes gated by the per-scenario collision prompt / -Force contract per module precedent.')]
     [CmdletBinding()]
     param (
-        [switch]$Randomize,
-        [string]$TemplatePrefix = "AG",
-        [string]$Server
+        [Parameter()]
+        [ValidateNotNullOrEmpty()]
+        [string]$CAName,
+
+        [Parameter()]
+        [ValidateNotNullOrEmpty()]
+        [string]$StatePath,
+
+        [Parameter()]
+        [ValidateNotNullOrEmpty()]
+        [string]$Server,
+
+        [Parameter()]
+        [switch]$Force
     )
 
-    if ([string]::IsNullOrEmpty($Server)) {
-        $Server = [System.Net.Dns]::GetHostEntry($env:LOGONSERVER.TrimStart('\')).HostName
+    begin {
+        if ([string]::IsNullOrEmpty($StatePath)) {
+            $StatePath = Join-Path -Path $PSScriptRoot -ChildPath '..\ADCSGoat.State.xml'
+        }
+        $scenarioParams = @{ StatePath = $StatePath }
+        if ($PSBoundParameters.ContainsKey('CAName')) { $scenarioParams['CAName'] = $CAName }
+        if ($PSBoundParameters.ContainsKey('Server')) { $scenarioParams['Server'] = $Server }
+        if ($Force.IsPresent) { $scenarioParams['Force'] = $true }
     }
 
-    #region template issues
-    $Templates = @(
-        @{Name = "${TemplatePrefix}ESC1"; ESC = 'ESC1' }
-        @{Name = "${TemplatePrefix}ESC2"; ESC = 'ESC2' }
-        @{Name = "${TemplatePrefix}ESC3c1"; ESC = 'ESC3c1' }
-        @{Name = "${TemplatePrefix}ESC3c2"; ESC = 'ESC3c2' }
-        @{Name = "${TemplatePrefix}ESC4"; ESC = 'ESC4' }
-        @{Name = "${TemplatePrefix}ESC9"; ESC = 'ESC9' }
-    )
-
-    # What: Create blank template objects.
-    # Why:
-    $Templates | ForEach-Object {
-        Write-Verbose "Creating blank template object: $($_.Name)"
-        New-AGBlankTemplateObject -TemplateName $_.Name -Server $Server
+    process {
+        Deploy-AGEsc1 @scenarioParams
+        Deploy-AGEsc4 @scenarioParams
+        Deploy-AGEsc3Chain @scenarioParams
+        Deploy-AGEsc5Chain @scenarioParams
     }
-
-    # What: Assign properties to the blank template objects to turn them into real templates with vulnerable configs.
-    # Why:
-    $Templates | ForEach-Object {
-        Write-Verbose "Assigning $($_.ESC) configuration to: $($_.Name)"
-        $PropertiesPath = Join-Path -Path $PSScriptRoot -ChildPath "..\Private\Template\$($_.ESC).xml"
-        $Properties = Import-Clixml -Path $PropertiesPath
-        Set-AGTemplateProperty -TemplateName $_.Name -Properties $Properties -Server $Server
-    }
-
-    # What: Grant low privileged users Enroll right on template objects to turn them into ESC issues (except ESC4)
-    # Why:
-    $Templates.Where( { $_.ESC -ne 'ESC4' } ) | ForEach-Object {
-        Write-Verbose "Granting Authenticated Users Enroll rights on: $($_.Name)"
-        Set-AGTemplateAce -TemplateName $_.Name -AceType Enroll -Server $Server
-    }
-
-    # What: Grant low privileged users Full Control over a template object to turn it into an ESC4.
-    # Why:
-    $Templates.Where( { $_.ESC -eq 'ESC4' } ) | ForEach-Object {
-        Write-Verbose "Granting Authenticated Users Full Control of: $($_.Name)"
-        Set-AGTemplateAce -TemplateName $_.Name -AceType GenericAll -Server $Server
-    }
-    #endregion template issues
-
-    #region ca issues
-    # What: Get the list of all Enrollment Services, generate their full CA names, then add the name to the CA object
-    # Why:
-    $EnrollmentServices = Find-AGEnrollmentService
-    $EnrollmentServices | Set-AGEnrollmentServiceFullName
-
-    # What: Enable ESC5 configuration on all CAs.
-    # Why:
-    $EnrollmentServices | ForEach-Object {
-        Write-Verbose "Granting Authenticated Users Full Control of: $($_.FullName)"
-        # Enable-PSCEditFlag -CAFullName $_.FullName -Flag EDITF_ATTRIBUTESUBJECTALTNAME2
-    }
-
-    # What: Enable ESC6 configuration on all CAs.
-    # Why:
-    $EnrollmentServices | ForEach-Object {
-        Write-Verbose "Assigning ESC6 configuration to: $($_.Name)"
-        Enable-PSCEditFlag -CAFullName $_.FullName -Flag EDITF_ATTRIBUTESUBJECTALTNAME2
-    }
-
-    # What: Enable ESC11 configuration on all CAs.
-    # Why:
-
-    $EnrollmentServices | ForEach-Object {
-        Write-Verbose "Assigning ESC11 configuration to: $($_.Name)"
-        Disable-PSCInterfaceFlag -CAFullName $_.FullName -Flag IF_ENFORCEENCRYPTICERTREQUEST
-    }
-
-    # What: Publish Certificate Templates
-    # Why:
-    $EnrollmentServices = Find-AGEnrollmentService
-    $Templates | ForEach-Object {
-        Write-Verbose "Publish $($_.Name) to: $($EnrollmentServices.Path)"
-        Publish-AGCertifcateTemplate  -TemplateName $_.Name -EnrollmentService $EnrollmentServices.Path -Server $Server
-    }
-
-    #endregion ca issues
 }
-
