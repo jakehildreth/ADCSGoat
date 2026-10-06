@@ -1,5 +1,11 @@
 # ADCSGoat
 
+## Commits
+
+- Conventional commits format (`type(scope): message`) with detailed bullet points.
+- Do NOT add `Co-authored-by` trailers to commit messages.
+- Never commit or push without Jake's explicit approval.
+
 ## Agent skills
 
 ### Issue tracker
