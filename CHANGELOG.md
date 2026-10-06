@@ -12,6 +12,13 @@
 - Add ESC4 scenario deploy (`Deploy-AGEsc4`): clones Web Server to 'Test SSL' with zero attribute overrides, grants Domain Users Full Control on the copied DACL, publishes on the selected CA, and records the clone in the state file; Web Server source left byte-identical
 - Add shared scenario pipeline (`Invoke-AGTemplateScenario`): the clone -> recipe -> rights -> publish -> record-state sequence every scenario deploy rides; scenario functions supply only the recipe and rights scriptblocks
 - Add ESC3 chain scenario deploy (`Deploy-AGEsc3Chain`): clones SubCA to 'VMware 6.x' with no EKU override, grants Authenticated Users Read + Enroll, publishes VMware 6.x and the built-in User template (ACL unchanged) on the selected CA, and records the clone in the state file; SubCA and User left unchanged, never touches NTAuthCertificates
+- Add ESC4+ESC5 chain scenario deploy (`Deploy-AGEsc5Chain`): clones Workstation Authentication to 'Copy of Workstation' (zero attribute overrides, Domain Users Full Control) left deliberately unpublished, and grants Authenticated Users Full Control on the selected CA's pKIEnrollmentService object (never the CA host/service security descriptor). Redeploy enforces pristine state by stripping an exercise-published 'Copy of Workstation' cn from certificateTemplates
+- Add CA-object ACL setter (`Set-AGEnrollmentServiceAce`) with idempotent dedupe predicate (`Test-AGAccessRulePresent`); scenario pipeline gains `-SkipPublish` for the unpublished-chain design
+- Add state-driven teardown (`Invoke-AGDeployTeardown`): removes recorded clone cns and restores the CA's certificateTemplates to its pre-change member set, deletes clone and companion OID objects, then restores the Enrollment Services security descriptor byte-for-byte LAST; any failure in the earlier steps aborts before the ACL restore and leaves the grant in place
+
+### Removed
+
+- Retire the legacy six-scenario internals (`New-AGBlankTemplateObject`, `Set-AGTemplateProperty`, `Set-AGTemplateAce`, `Publish-AGCertifcateTemplate`) and the `Private/Template` XML/JSON property snapshots; `Install-ADCSGoat` now orchestrates the four scenario deploys and `Uninstall-ADCSGoat` drives the state-file teardown, with no legacy detection
 
 ### Changed
 
