@@ -18,7 +18,7 @@
             Tags=@('ADCS',                'ADCSGoat',                'CertificateServices',                'PKI',                'Lab',                'ActiveDirectory',                'Windows')
         }
     }
-    RequiredModules=@('Microsoft.PowerShell.Utility',        'Microsoft.PowerShell.Management',        'Microsoft.PowerShell.Security',        'AutomatedLab',        'PSFramework')
+    RequiredModules=@('Microsoft.PowerShell.Utility',        'Microsoft.PowerShell.Management',        'Microsoft.PowerShell.Security')
     RootModule='ADCSGoat.psm1'
     VariablesToExport='*'
 }

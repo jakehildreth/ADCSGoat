@@ -42,9 +42,8 @@ if (Get-Module -Name 'PSPublishModule' -ListAvailable) {
 
 Import-Module -Name PSPublishModule -Force
 
-# Ensure declared runtime dependencies and vendored functions are available
-# for build-time analysis and module imports.
-foreach ($depName in @('PSCertutil', 'AutomatedLab', 'PSFramework')) {
+# Ensure vendored functions are available for build-time analysis.
+foreach ($depName in @('PSCertutil')) {
     if (-not (Get-Module -Name $depName -ListAvailable)) {
         Write-Host "Installing $depName for build-time analysis..."
         Install-Module -Name $depName -Scope CurrentUser -Force -AllowClobber
@@ -80,10 +79,9 @@ Build-Module -ModuleName 'ADCSGoat' {
         'Microsoft.PowerShell.Security'
     )
 
-    New-ConfigurationModule -Type RequiredModule -Name 'AutomatedLab', 'PSFramework'
-
+    # Deployment-only modules must not become installation requirements through command analysis.
     # PSCertutil remains vendored by the post-build hook.
-    New-ConfigurationModuleSkip -IgnoreModuleName 'PSCertutil'
+    New-ConfigurationModuleSkip -IgnoreModuleName 'PSCertutil', 'AutomatedLab', 'PSFramework'
 
     $ConfigurationFormat = [ordered] @{
         RemoveComments                              = $false

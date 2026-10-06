@@ -20,7 +20,7 @@ ADCSGoat creates vulnerable Active Directory Certificate Services (AD CS) certif
 ## Prerequisites
 
 - PowerShell 5.1+
-- For infrastructure deployment: an administrative Hyper-V host and matching Windows Server 2022 Standard Desktop Experience media
+- For infrastructure deployment: an administrative Hyper-V host, matching Windows Server 2022 Standard Desktop Experience media, and PSGallery access when deployment dependencies are missing
 - For template configuration: a domain with Active Directory and an enterprise AD CS CA
 - [PSCertutil](https://github.com/jakehildreth/PSCertutil) is bundled in the built package; source imports require it separately
 
@@ -30,12 +30,18 @@ ADCSGoat creates vulnerable Active Directory Certificate Services (AD CS) certif
 Install-Module -Name ADCSGoat
 ```
 
-Installation also installs [AutomatedLab](https://automatedlab.org/) and [PSFramework](https://psframework.org/). Importing ADCSGoat loads both and AutomatedLab's dependency graph, including on a host that only configures an existing CA. AutomatedLab initialization can access the network and its application-data folder. Installation does not enable Hyper-V or supply OS media.
+Installing or importing ADCSGoat does not install or load AutomatedLab or PSFramework. Commands that configure AD CS inside the VMs do not need them. `Deploy-AGInfrastructure` installs missing AutomatedLab dependencies on the deployment host. You can also prepare the host manually:
+
+```powershell
+Install-Module -Name AutomatedLab -Scope CurrentUser
+```
+
+`Deploy-AGInfrastructure` checks AutomatedLab's complete required-module graph before resolving path defaults or prompting. It installs missing modules and compatible dependency versions from PSGallery in `CurrentUser` scope, then imports AutomatedLab. Only unsatisfied requirements trigger installation. Installation or import failures terminate with `InfrastructureDependencyUnavailable` and preserve the original error. Dependency installation does not enable Hyper-V or supply OS media.
 
 Or clone the repo and import directly:
 
 ```powershell
-Install-Module -Name AutomatedLab, PSFramework, PSCertutil
+Install-Module -Name PSCertutil
 git clone https://github.com/jakehildreth/ADCSGoat.git
 Import-Module .\ADCSGoat\ADCSGoat.psd1
 ```

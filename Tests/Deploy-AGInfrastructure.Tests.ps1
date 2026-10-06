@@ -1,7 +1,18 @@
 BeforeAll {
-    Import-Module -Name PSFramework -ErrorAction Stop
-    Import-Module -Name AutomatedLab -ErrorAction Stop
+    # Declare external command boundaries so tests do not initialize AutomatedLab or Hyper-V.
+    function Get-Lab { param([switch]$List) throw 'Unexpected lab access.' }
+    function Test-LabHostRemoting { throw 'Unexpected host remoting access.' }
+    function Get-VMSwitch { throw 'Unexpected switch access.' }
+    function Import-Lab { param($Name) throw 'Unexpected lab import.' }
+    function Get-LabVM { throw 'Unexpected VM access.' }
+    function Install-Module { throw 'Unexpected module installation.' }
     . (Join-Path -Path $PSScriptRoot -ChildPath '..\Public\Deploy-AGInfrastructure.ps1')
+    $originalModulePath = $env:PSModulePath
+    $moduleRoot = Join-Path -Path $TestDrive -ChildPath 'Modules'
+    $dependencyRoot = Join-Path -Path $moduleRoot -ChildPath 'AutomatedLab'
+    $null = New-Item -Path $dependencyRoot -ItemType Directory -Force
+    New-ModuleManifest -Path (Join-Path -Path $dependencyRoot -ChildPath 'AutomatedLab.psd1') -ModuleVersion '1.0.0'
+    $env:PSModulePath = $moduleRoot + [IO.Path]::PathSeparator + (Join-Path -Path $PSHOME -ChildPath 'Modules')
 
     $deploymentArguments = @{
         Name           = 'AGTest'
@@ -13,8 +24,13 @@ BeforeAll {
     }
 }
 
+AfterAll {
+    $env:PSModulePath = $originalModulePath
+}
+
 Describe 'Deploy-AGInfrastructure' {
     BeforeEach {
+        Mock -CommandName Import-Module -ParameterFilter { $Name -eq 'AutomatedLab' } -MockWith { }
         Mock -CommandName Get-Lab -MockWith {
             throw 'Resource validation must precede lab access.'
         }
