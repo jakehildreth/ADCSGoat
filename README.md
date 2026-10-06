@@ -8,14 +8,10 @@ ADCSGoat creates vulnerable Active Directory Certificate Services (AD CS) certif
 
 | Scenario | Description |
 |----------|-------------|
-| ESC1 | Enrollee supplies subject in SAN-enabled template |
-| ESC2 | Overly permissive template allows any purpose |
-| ESC3 (Condition 1) | Enrollment agent template misconfiguration |
-| ESC3 (Condition 2) | Certificate request agent abuse |
-| ESC4 | Vulnerable certificate template ACLs |
-| ESC6 | EDITF_ATTRIBUTESUBJECTALTNAME2 enabled on CA |
-| ESC9 | No security extension on template |
-| ESC11 | IF_ENFORCEENCRYPTICERTREQUEST disabled on CA |
+| ESC1 | Web Server clone with Client Authentication added by mistake ("Copy of Web Server"), published |
+| ESC4 | Template left with Domain Users Full Control ("Test SSL"), published |
+| ESC2 + Schema V1 | SubCA clone with Authenticated Users enroll ("VMware 6.x") plus the built-in User template, published |
+| ESC4 + ESC5 | Unpublished Workstation clone with Domain Users Full Control ("Copy of Workstation") plus Authenticated Users Full Control on the issuing CA object |
 
 ## Prerequisites
 
@@ -89,19 +85,17 @@ See [deployment help](Docs/en-US/Deploy-AGInfrastructure.md) for details. Window
 
 | Command | Description |
 |---------|-------------|
+| `Install-ADCSGoat` | Deploys the full lab: runs all four scenario deploys against the selected CA |
+| `Uninstall-ADCSGoat` | Tears the lab down from the state file, restoring the CA's security descriptor byte-for-byte last |
 | `Deploy-ADCSGoat` | Runs the deploy entrypoint: selects the CA, prints the preflight report, writes the state file — before any AD write |
 | `Deploy-AGInfrastructure` | Deploys a Hyper-V lab using AutomatedLab |
-| `Install-ADCSGoat` | Creates all vulnerable templates and CA misconfigs |
-| `Uninstall-ADCSGoat` | Removes all ADCSGoat templates and reverts CA changes |
 | `Find-AGEnrollmentService` | Queries AD for all Enrollment Services |
-| `New-AGBlankTemplateObject` | Creates blank certificate template objects in AD |
-| `Set-AGTemplateAce` | Adds ACEs to a certificate template |
-| `Set-AGTemplateProperty` | Sets properties on a certificate template |
 | `Set-AGEnrollmentServiceFullName` | Adds a FullName property to an Enrollment Service object |
 | `Copy-AGTemplate` | Clones a built-in certificate template with fresh OID and collision handling |
-| `Deploy-AGEsc1` | Deploys the ESC1 scenario: clones Web Server, adds Client Auth, grants Domain Users enroll, publishes on the CA |
-| `Deploy-AGEsc4` | Deploys the ESC4 scenario: clones Web Server to Test SSL, grants Domain Users Full Control, publishes on the CA |
-| `Deploy-AGEsc3Chain` | Deploys the ESC3 chain: clones SubCA to VMware 6.x (no EKU override), grants Authenticated Users enroll, publishes VMware 6.x + User on the CA |
+| `Deploy-AGEsc1` | ESC1: clones Web Server to "Copy of Web Server", adds Client Auth, grants Domain Users enroll, publishes on the CA |
+| `Deploy-AGEsc4` | ESC4: clones Web Server to "Test SSL", grants Domain Users Full Control, publishes on the CA |
+| `Deploy-AGEsc3Chain` | ESC2+Schema V1: clones SubCA to "VMware 6.x" (no EKU override), grants Authenticated Users enroll, publishes VMware 6.x + User on the CA |
+| `Deploy-AGEsc5Chain` | ESC4+ESC5: clones Workstation to "Copy of Workstation" (Domain Users Full Control, unpublished) and grants Authenticated Users Full Control on the CA object |
 
 ## License
 

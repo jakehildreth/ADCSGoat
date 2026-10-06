@@ -119,6 +119,13 @@ function Invoke-AGTemplateScenario {
         [ValidateNotNullOrEmpty()]
         [string]$Server,
 
+        # When set, the clone is NOT published on the selected CA: its cn is
+        # kept out of (and stripped from) certificateTemplates. Used by the
+        # ESC4+ESC5 chain (#30), where the clone must stay unpublished and a
+        # redeploy enforces that pristine state after an exercise published it.
+        [Parameter()]
+        [switch]$SkipPublish,
+
         [Parameter()]
         [switch]$Force
     )
@@ -189,17 +196,28 @@ function Invoke-AGTemplateScenario {
         #    template the scenario depends on (e.g. the ESC3 chain's User
         #    template). Publish is additive; an already-published template is
         #    left as-is and its ACL is never touched.
+        #    When -SkipPublish is set (the ESC4+ESC5 chain, #30) the clone must
+        #    stay unpublished: redeploy strips its cn from certificateTemplates
+        #    if an exercise published it, restoring pristine state, and logs it.
         $caEntry = New-Object System.DirectoryServices.DirectoryEntry("$serverPrefix$($selectedCA.DistinguishedName)")
         $published = @($caEntry.Properties['certificateTemplates'] | ForEach-Object { "$_" })
-        if ($published -notcontains $cloneCn) {
-            $caEntry.PutEx(3, 'certificateTemplates', @($cloneCn))   # ADS_PROPERTY_APPEND
-            $caEntry.SetInfo()
-            $caEntry.RefreshCache()
-            $published = @($caEntry.Properties['certificateTemplates'] | ForEach-Object { "$_" })
-        }
-        if ($PSBoundParameters.ContainsKey('AlsoPublishTemplate') -and $published -notcontains $AlsoPublishTemplate) {
-            $caEntry.PutEx(3, 'certificateTemplates', @($AlsoPublishTemplate))
-            $caEntry.SetInfo()
+        if ($SkipPublish.IsPresent) {
+            if ($published -contains $cloneCn) {
+                $caEntry.PutEx(4, 'certificateTemplates', @($cloneCn))   # ADS_PROPERTY_DELETE
+                $caEntry.SetInfo()
+                Write-Verbose "Pristine state restored: stripped '$cloneCn' from '$($selectedCA.FullName)' certificateTemplates (an exercise had published it)."
+            }
+        } else {
+            if ($published -notcontains $cloneCn) {
+                $caEntry.PutEx(3, 'certificateTemplates', @($cloneCn))   # ADS_PROPERTY_APPEND
+                $caEntry.SetInfo()
+                $caEntry.RefreshCache()
+                $published = @($caEntry.Properties['certificateTemplates'] | ForEach-Object { "$_" })
+            }
+            if ($PSBoundParameters.ContainsKey('AlsoPublishTemplate') -and $published -notcontains $AlsoPublishTemplate) {
+                $caEntry.PutEx(3, 'certificateTemplates', @($AlsoPublishTemplate))
+                $caEntry.SetInfo()
+            }
         }
         $caEntry.Dispose()
 
