@@ -5,7 +5,17 @@ param (
     [string]$Prerelease,
     [switch]$PublishToPSGallery,
     [string]$PSGalleryAPIPath,
-    [string]$PSGalleryAPIKey
+    [string]$PSGalleryAPIKey,
+    # When present, creates a GitHub release and attaches the vendored artefact as a zip asset.
+    [switch]$PublishToGitHub,
+    # GitHub personal access token for creating releases. Used in CI via a secret environment variable.
+    [string]$GitHubAPIKey,
+    # Path to a file containing the GitHub personal access token. Used for local developer workflows.
+    [string]$GitHubAPIPath,
+    # GitHub owner (user or organization) for release publishing. Defaults to 'jakehildreth'.
+    [string]$GitHubOwner = 'jakehildreth',
+    # GitHub repository name for release publishing. Defaults to 'ADCSGoat'.
+    [string]$GitHubRepository = 'ADCSGoat'
 )
 
 # The VS Code PowerShell Extension pre-loads PSScriptAnalyzer into the host
@@ -23,6 +33,11 @@ if ($Host.Name -eq 'Visual Studio Code Host' -or
     if ($PublishToPSGallery) { $passThrough += '-PublishToPSGallery' }
     if ($PSGalleryAPIPath) { $passThrough += '-PSGalleryAPIPath'; $passThrough += $PSGalleryAPIPath }
     if ($PSGalleryAPIKey) { $passThrough += '-PSGalleryAPIKey'; $passThrough += $PSGalleryAPIKey }
+    if ($PublishToGitHub) { $passThrough += '-PublishToGitHub' }
+    if ($GitHubAPIKey) { $passThrough += '-GitHubAPIKey'; $passThrough += $GitHubAPIKey }
+    if ($GitHubAPIPath) { $passThrough += '-GitHubAPIPath'; $passThrough += $GitHubAPIPath }
+    if ($PSBoundParameters.ContainsKey('GitHubOwner')) { $passThrough += '-GitHubOwner'; $passThrough += $GitHubOwner }
+    if ($PSBoundParameters.ContainsKey('GitHubRepository')) { $passThrough += '-GitHubRepository'; $passThrough += $GitHubRepository }
     & pwsh @passThrough
     exit $LASTEXITCODE
 }
@@ -150,8 +165,14 @@ Build-Module -ModuleName 'ADCSGoat' {
 $postBuildParams = @{
     ArtefactRoot       = Join-Path $PSScriptRoot '..' 'Artefacts' 'Unpacked' 'ADCSGoat'
     PublishToPSGallery = $PublishToPSGallery
+    PublishToGitHub    = $PublishToGitHub
 }
 if ($PSGalleryAPIKey) { $postBuildParams['PSGalleryAPIKey'] = $PSGalleryAPIKey }
 if ($PSGalleryAPIPath) { $postBuildParams['PSGalleryAPIPath'] = $PSGalleryAPIPath }
+if ($GitHubAPIKey) { $postBuildParams['GitHubAPIKey'] = $GitHubAPIKey }
+if ($GitHubAPIPath) { $postBuildParams['GitHubAPIPath'] = $GitHubAPIPath }
+if ($PSBoundParameters.ContainsKey('GitHubOwner')) { $postBuildParams['GitHubOwner'] = $GitHubOwner }
+if ($PSBoundParameters.ContainsKey('GitHubRepository')) { $postBuildParams['GitHubRepository'] = $GitHubRepository }
+if ($Prerelease) { $postBuildParams['Prerelease'] = $Prerelease }
 
 Invoke-AGPostBuildPublish @postBuildParams

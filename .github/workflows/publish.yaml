@@ -1,9 +1,7 @@
-name: Build and Publish to PSGallery
+name: Build and Publish to PSGallery and GitHub
 
 on:
   push:
-    branches:
-      - main
     paths:
       - 'Public/**'
       - 'Private/**'
@@ -11,7 +9,11 @@ on:
       - 'ADCSGoat.psm1'
       - 'ADCSGoat.psd1'
       - 'LICENSE'
+      - '.github/workflows/publish.yaml'
   workflow_dispatch:
+
+permissions:
+  contents: write
 
 jobs:
   build-and-publish:
@@ -42,13 +44,26 @@ jobs:
             Write-Warning "Some Pester tests failed, but continuing with build."
         }
 
-    - name: Build and Publish
+    - name: Build and Publish (Release)
+      if: github.ref == 'refs/heads/main'
       shell: pwsh
       env:
         PSGALLERY_API_KEY: ${{ secrets.PS_GALLERY_KEY }}
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: |
-        Write-Host "Building and publishing ADCSGoat..." -ForegroundColor Cyan
-        ./Build/Build-Module.ps1 -PublishToPSGallery -PSGalleryAPIKey $env:PSGALLERY_API_KEY
+        Write-Host "Building and publishing ADCSGoat (release)..." -ForegroundColor Cyan
+        ./Build/Build-Module.ps1 -PublishToPSGallery -PSGalleryAPIKey $env:PSGALLERY_API_KEY -PublishToGitHub -GitHubAPIKey $env:GITHUB_TOKEN
+        Write-Host "Published successfully" -ForegroundColor Green
+
+    - name: Build and Publish (Prerelease)
+      if: github.ref != 'refs/heads/main'
+      shell: pwsh
+      env:
+        PSGALLERY_API_KEY: ${{ secrets.PS_GALLERY_KEY }}
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: |
+        Write-Host "Building and publishing ADCSGoat (prerelease)..." -ForegroundColor Cyan
+        ./Build/Build-Module.ps1 -PublishToPSGallery -PSGalleryAPIKey $env:PSGALLERY_API_KEY -PublishToGitHub -GitHubAPIKey $env:GITHUB_TOKEN -Prerelease 'pre'
         Write-Host "Published successfully" -ForegroundColor Green
 
     - name: Get module version
