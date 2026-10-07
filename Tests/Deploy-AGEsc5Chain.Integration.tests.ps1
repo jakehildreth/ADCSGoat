@@ -24,7 +24,7 @@ BeforeDiscovery {
 
 BeforeAll {
     . $PSScriptRoot/../Public/Deploy-AGEsc5Chain.ps1
-    . $PSScriptRoot/../Public/Copy-AGTemplate.ps1
+    . $PSScriptRoot/../Private/Copy-AGTemplate.ps1
     . $PSScriptRoot/../Private/New-AGTemplateOid.ps1
     . $PSScriptRoot/../Private/Remove-AGTemplate.ps1
     . $PSScriptRoot/../Private/Get-AGEnrollmentService.ps1

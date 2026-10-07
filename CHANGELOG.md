@@ -22,6 +22,7 @@
 
 ### Changed
 
+- Make `Copy-AGTemplate`, `Find-AGEnrollmentService`, and `Set-AGEnrollmentServiceFullName` private; the public surface is now `Install-ADCSGoat`, `Uninstall-ADCSGoat`, `Deploy-ADCSGoat`, `Deploy-AGInfrastructure`, and the four scenario deploys
 - Default all lab VMs to Windows Server 2022 Standard Desktop Experience.
 - Use a 2 GB dynamic-memory minimum, 4 GB startup suggestion, and maximum memory of at least 4 GB or the selected startup value.
 - Make AutomatedLab and PSFramework deployment-only dependencies instead of ADCSGoat installation requirements; importing ADCSGoat inside the VMs no longer loads them.

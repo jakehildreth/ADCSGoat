@@ -89,9 +89,6 @@ See [deployment help](Docs/en-US/Deploy-AGInfrastructure.md) for details. Window
 | `Uninstall-ADCSGoat` | Tears the lab down from the state file, restoring the CA's security descriptor byte-for-byte last |
 | `Deploy-ADCSGoat` | Runs the deploy entrypoint: selects the CA, prints the preflight report, writes the state file — before any AD write |
 | `Deploy-AGInfrastructure` | Deploys a Hyper-V lab using AutomatedLab |
-| `Find-AGEnrollmentService` | Queries AD for all Enrollment Services |
-| `Set-AGEnrollmentServiceFullName` | Adds a FullName property to an Enrollment Service object |
-| `Copy-AGTemplate` | Clones a built-in certificate template with fresh OID and collision handling |
 | `Deploy-AGEsc1` | ESC1: clones Web Server to "Copy of Web Server", adds Client Auth, grants Domain Users enroll, publishes on the CA |
 | `Deploy-AGEsc4` | ESC4: clones Web Server to "Test SSL", grants Domain Users Full Control, publishes on the CA |
 | `Deploy-AGEsc3Chain` | ESC2+Schema V1: clones SubCA to "VMware 6.x" (no EKU override), grants Authenticated Users enroll, publishes VMware 6.x + User on the CA |
