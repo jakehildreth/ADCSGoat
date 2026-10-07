@@ -1,7 +1,7 @@
 function Invoke-AGPostBuildPublish {
     <#
     .SYNOPSIS
-    Vendors PSCertutil into the unpacked artefact and optionally publishes to PSGallery.
+    Vendors PSCertutil into the unpacked artefact and optionally publishes to PSGallery and GitHub.
 
     .DESCRIPTION
     Copies a pinned version of PSCertutil into the Modules\ subfolder of the unpacked
@@ -11,6 +11,10 @@ function Invoke-AGPostBuildPublish {
 
     Publishing via -Path bypasses PSModulePath, ensuring what ships to PSGallery matches
     exactly what is in the artefact directory rather than the pre-vendoring source tree.
+
+    When a GitHub token is supplied and publishing is enabled, the vendored unpacked
+    artefact is compressed into a zip and attached to a GitHub release. This ensures the
+    GitHub release asset contains the same vendored dependency as the PSGallery publish.
 
     .PARAMETER ArtefactRoot
     Full path to the unpacked module artefact directory (contains ADCSGoat.psd1).
@@ -24,11 +28,36 @@ function Invoke-AGPostBuildPublish {
     .PARAMETER PSGalleryAPIPath
     Path to a file containing the NuGet API key. Used for local developer workflows.
 
+    .PARAMETER PublishToGitHub
+    When present, creates a GitHub release and attaches the vendored artefact as a zip asset.
+
+    .PARAMETER GitHubAPIKey
+    GitHub personal access token in clear text. Used when running in CI via a secret environment variable.
+
+    .PARAMETER GitHubAPIPath
+    Path to a file containing the GitHub personal access token. Used for local developer workflows.
+
+    .PARAMETER GitHubOwner
+    GitHub owner (user or organization) for release publishing. Defaults to 'jakehildreth'.
+
+    .PARAMETER GitHubRepository
+    GitHub repository name for release publishing. Defaults to 'ADCSGoat'.
+
+    .PARAMETER Prerelease
+    Prerelease tag appended to the module version. When present, the GitHub release is marked as a prerelease.
+
+    .PARAMETER GitHubSha
+    Commit SHA to use as the GitHub release target_commitish. Defaults to $env:GITHUB_SHA.
+    GitHub releases are only allowed when this value is provided.
+
     .EXAMPLE
     Invoke-AGPostBuildPublish -ArtefactRoot 'C:\ADCSGoat\Artefacts\Unpacked\ADCSGoat' -PublishToPSGallery -PSGalleryAPIKey $env:PSGALLERY_API_KEY
 
     .EXAMPLE
     Invoke-AGPostBuildPublish -ArtefactRoot 'C:\ADCSGoat\Artefacts\Unpacked\ADCSGoat' -PublishToPSGallery -PSGalleryAPIPath 'C:\Secrets\psgallery.txt'
+
+    .EXAMPLE
+    Invoke-AGPostBuildPublish -ArtefactRoot 'C:\ADCSGoat\Artefacts\Unpacked\ADCSGoat' -PublishToGitHub -GitHubAPIKey $env:GITHUB_TOKEN -Prerelease 'pre'
 
     .OUTPUTS
     None. Writes host/verbose messages only.
@@ -48,7 +77,28 @@ function Invoke-AGPostBuildPublish {
         [string]$PSGalleryAPIKey,
 
         [Parameter()]
-        [string]$PSGalleryAPIPath
+        [string]$PSGalleryAPIPath,
+
+        [Parameter()]
+        [switch]$PublishToGitHub,
+
+        [Parameter()]
+        [string]$GitHubAPIKey,
+
+        [Parameter()]
+        [string]$GitHubAPIPath,
+
+        [Parameter()]
+        [string]$GitHubOwner = 'jakehildreth',
+
+        [Parameter()]
+        [string]$GitHubRepository = 'ADCSGoat',
+
+        [Parameter()]
+        [string]$Prerelease,
+
+        [Parameter()]
+        [string]$GitHubSha = $env:GITHUB_SHA
     )
 
     if (-not (Test-Path -Path $ArtefactRoot)) {
@@ -167,4 +217,94 @@ function Invoke-AGPostBuildPublish {
         Publish-Module @publishParams
         Write-Host "[+] Published $moduleName to PSGallery successfully" -ForegroundColor Green
     }
+
+    # region GitHub Release
+    if (-not $PublishToGitHub) {
+        return
+    }
+
+    if (-not ($GitHubAPIKey -or $GitHubAPIPath)) {
+        Write-Host '[x] -PublishToGitHub specified but neither -GitHubAPIKey nor -GitHubAPIPath was provided.' -ForegroundColor Red
+        Write-Error '-PublishToGitHub was specified but neither -GitHubAPIKey nor -GitHubAPIPath was provided.'
+        return
+    }
+
+    if ([string]::IsNullOrEmpty($GitHubSha)) {
+        Write-Host '[x] -PublishToGitHub was specified but -GitHubSha was not provided and $env:GITHUB_SHA is not set. GitHub releases must be created from GitHub Actions.' -ForegroundColor Red
+        Write-Error '-PublishToGitHub was specified but -GitHubSha was not provided and $env:GITHUB_SHA is not set. GitHub releases must be created from GitHub Actions.'
+        return
+    }
+
+    Write-Host ''
+    Write-Host '[i] Creating GitHub release' -ForegroundColor Cyan
+
+    if ($GitHubAPIKey) {
+        $gitHubToken = $GitHubAPIKey
+    } else {
+        $gitHubToken = Get-Content -Path $GitHubAPIPath -ErrorAction Stop -Encoding UTF8 |
+            Select-Object -First 1
+    }
+
+    if (-not (Test-Path -Path $psd1)) {
+        Write-Error "Cannot determine module version for GitHub release; manifest not found at $psd1."
+        return
+    }
+
+    $moduleVersion = (Import-PowerShellDataFile -Path $psd1).ModuleVersion
+    $releaseTag = if ($Prerelease) { "$moduleVersion-$Prerelease" } else { $moduleVersion }
+    $releaseName = "$moduleName $releaseTag"
+    $zipName = "$moduleName-$releaseTag.zip"
+    $zipPath = Join-Path (Split-Path $ArtefactRoot -Parent) $zipName
+    $releaseUri = "https://api.github.com/repos/$GitHubOwner/$GitHubRepository/releases"
+
+    if (-not $PSCmdlet.ShouldProcess($releaseUri, 'Create GitHub release')) {
+        return
+    }
+
+    if (Test-Path -Path $zipPath) {
+        Remove-Item -Path $zipPath -Force
+    }
+
+    $stagingRoot = Join-Path ([System.IO.Path]::GetTempPath()) ([System.Guid]::NewGuid().ToString())
+    $stagingPath = Join-Path $stagingRoot $moduleName
+    New-Item -ItemType Directory -Path $stagingPath -Force | Out-Null
+    Get-ChildItem -Path $ArtefactRoot | Copy-Item -Destination $stagingPath -Recurse -Force
+
+    Write-Host "   [>] Compressing vendored artefact to $zipName" -ForegroundColor Yellow
+    Compress-Archive -Path $stagingPath -DestinationPath $zipPath -Force
+    Write-Host "   [+] Release zip created at $zipPath" -ForegroundColor Green
+
+    Remove-Item -Path $stagingRoot -Recurse -Force -ErrorAction SilentlyContinue
+
+    $releaseBody = "$moduleName release $releaseTag"
+    $releaseData = @{
+        tag_name               = $releaseTag
+        target_commitish       = $GitHubSha
+        name                   = $releaseName
+        body                   = $releaseBody
+        draft                  = $false
+        prerelease             = [bool]$Prerelease
+        generate_release_notes = $true
+    } | ConvertTo-Json
+
+    $headers = @{
+        Authorization          = "Bearer $gitHubToken"
+        Accept                 = 'application/vnd.github+json'
+        'X-GitHub-Api-Version' = '2022-11-28'
+    }
+
+    Write-Host "   [>] Creating GitHub release $releaseTag" -ForegroundColor Yellow
+    try {
+        $release = Invoke-RestMethod -Uri $releaseUri -Method Post -Headers $headers -Body $releaseData -ContentType 'application/json'
+        Write-Host "   [+] GitHub release created" -ForegroundColor Green
+
+        $uploadUri = $release.upload_url -replace '{\?name,[^}]*}', "?name=$zipName"
+        Write-Host "   [>] Uploading $zipName to GitHub release" -ForegroundColor Yellow
+        Invoke-RestMethod -Uri $uploadUri -Method Post -Headers $headers -InFile $zipPath -ContentType 'application/zip' | Out-Null
+        Write-Host "   [+] Uploaded $zipName to GitHub release" -ForegroundColor Green
+    } catch {
+        Write-Host "   [x] GitHub release creation failed: $_" -ForegroundColor Red
+        Write-Error $_
+    }
 }
+# endregion
