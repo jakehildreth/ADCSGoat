@@ -32,7 +32,8 @@ function Uninstall-ADCSGoat {
 
     .PARAMETER PawComputerName
         The workstation whose Remote Desktop Users group the lab user is removed
-        from. Defaults to 'ADCSGoat-PAW'.
+        from. Found in AD when omitted: the one computer named '*-PAW'. With zero
+        or several matches the group cleanup is skipped with a warning.
 
     .EXAMPLE
         Uninstall-ADCSGoat
@@ -61,7 +62,7 @@ function Uninstall-ADCSGoat {
 
         [Parameter()]
         [ValidateNotNullOrEmpty()]
-        [string]$PawComputerName = 'ADCSGoat-PAW'
+        [string]$PawComputerName
     )
 
     begin {
@@ -83,9 +84,12 @@ function Uninstall-ADCSGoat {
 
             # Group membership first: deleting the user first would leave an orphaned SID in the PAW group.
             try {
+                if (-not $PSBoundParameters.ContainsKey('PawComputerName')) {
+                    $PawComputerName = Find-AGPawComputer @userParams
+                }
                 Set-AGRdpUserAccess -ComputerName $PawComputerName -Member "$netbiosName\$LowPrivUserName" -Ensure Absent
             } catch {
-                Write-Warning "Could not remove $netbiosName\$LowPrivUserName from Remote Desktop Users on ${PawComputerName}: $($_.Exception.Message)"
+                Write-Warning "Could not remove $netbiosName\$LowPrivUserName from Remote Desktop Users on the PAW: $($_.Exception.Message)"
             }
             $null = Remove-AGLowPrivUser -UserName $LowPrivUserName @userParams
         }

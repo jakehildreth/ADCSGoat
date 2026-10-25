@@ -51,9 +51,10 @@ function Install-ADCSGoat {
         The lab user's password. Defaults to the deliberately known 'Somepass1'.
 
     .PARAMETER PawComputerName
-        The workstation the lab user may RDP to. Defaults to 'ADCSGoat-PAW'. Runs
-        locally when this is the current computer, otherwise through PowerShell
-        remoting, which needs admin rights on the PAW.
+        The workstation the lab user may RDP to. Found in AD when omitted: the one
+        computer named '*-PAW'. Zero or several matches stop the install; pass this
+        parameter then. Runs locally when this is the current computer, otherwise
+        through PowerShell remoting, which needs admin rights on the PAW.
 
     .EXAMPLE
         Install-ADCSGoat
@@ -99,7 +100,7 @@ function Install-ADCSGoat {
 
         [Parameter()]
         [ValidateNotNullOrEmpty()]
-        [string]$PawComputerName = 'ADCSGoat-PAW'
+        [string]$PawComputerName
     )
 
     begin {
@@ -117,6 +118,11 @@ function Install-ADCSGoat {
         if (-not $SkipLowPrivUser) {
             $userParams = @{}
             if ($PSBoundParameters.ContainsKey('Server')) { $userParams['Server'] = $Server }
+
+            # Resolved before the user is created so an unknown PAW fails with nothing written.
+            if (-not $PSBoundParameters.ContainsKey('PawComputerName')) {
+                $PawComputerName = Find-AGPawComputer @userParams
+            }
 
             $null = New-AGLowPrivUser -UserName $LowPrivUserName -Password $LowPrivUserPassword @userParams
 

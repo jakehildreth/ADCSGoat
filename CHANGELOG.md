@@ -3,7 +3,7 @@
 ### Added
 
 - Offer editable startup memory and CPU suggestions for DC, CA, and PAW, with per-VM overrides and a noninteractive deployment mode.
-- `Install-ADCSGoat` first creates a low privileged domain user (`user` / `Somepass1`) and grants it RDP access to `ADCSGoat-PAW`; `Uninstall-ADCSGoat` removes it when ADCSGoat created it. Customize with `-LowPrivUserName`, `-LowPrivUserPassword`, and `-PawComputerName`, or opt out with `-SkipLowPrivUser`.
+- `Install-ADCSGoat` first creates a low privileged domain user (`user` / `Somepass1`) and grants it RDP access to the lab's PAW (found in AD as the one computer named `*-PAW`); `Uninstall-ADCSGoat` removes it when ADCSGoat created it. Customize with `-LowPrivUserName`, `-LowPrivUserPassword`, and `-PawComputerName`, or opt out with `-SkipLowPrivUser`.
 - `Deploy-AGInfrastructure` enables AD CS web enrollment (the `/certsrv` IIS pages, an ESC8 relay target) on the CA VM via AutomatedLab's native `CaRoot` role property.
 - Cover invalid resource settings and noninteractive deployment conflicts with public-command regression tests.
 - Add deploy entrypoint (`Deploy-ADCSGoat`) for the four replacement scenarios: selected-CA contract, preflight report, and state file — demoable on its own with zero AD writes
