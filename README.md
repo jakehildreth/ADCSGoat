@@ -81,6 +81,8 @@ Omitted roles and fields keep their suggestions. Noninteractive mode requires un
 
 See [deployment help](Docs/en-US/Deploy-AGInfrastructure.md) for details. Windows Server security defaults and certificate-mapping enforcement can affect attack demonstrations; configured misconfigurations do not guarantee every historic attack path succeeds.
 
+The CA VM is deployed with web enrollment enabled (the classic `/certsrv` IIS pages, an ESC8 relay target). CEP, CES, and NDES are not deployed: AutomatedLab has no built-in role for them, and standing them up needs a dedicated service account, published RA certificate templates (`CEP Encryption`, `Exchange Enrollment Agent (Offline request)`), and an IIS binding configured after `Install-Lab` finishes.
+
 ## Commands
 
 | Command | Description |
