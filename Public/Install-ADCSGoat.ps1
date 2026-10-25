@@ -41,18 +41,35 @@ function Install-ADCSGoat {
         Replaces ADCSGoat-owned existing clones without prompting. Required for
         non-interactive redeploy.
 
+    .PARAMETER SkipLowPrivUser
+        Skips creating the low privileged lab user and its RDP access to the PAW.
+
+    .PARAMETER LowPrivUserName
+        The sAMAccountName of the low privileged lab user. Defaults to 'user'.
+
+    .PARAMETER LowPrivUserPassword
+        The lab user's password. Defaults to the deliberately known 'Somepass1'.
+
+    .PARAMETER PawComputerName
+        The workstation the lab user may RDP to. Defaults to 'ADCSGoat-PAW'. Runs
+        locally when this is the current computer, otherwise through PowerShell
+        remoting, which needs admin rights on the PAW.
+
     .EXAMPLE
         Install-ADCSGoat
 
-        Deploys all four scenarios against the forest's single CA.
+        Creates the low privileged RDP user, then deploys all four scenarios
+        against the forest's single CA.
 
     .EXAMPLE
-        Install-ADCSGoat -CAName 'LabRootCA1' -Force
+        Install-ADCSGoat -CAName 'LabRootCA1' -Force -SkipLowPrivUser
 
-        Redeploys all four scenarios against the named CA.
+        Redeploys all four scenarios against the named CA without the lab user.
     #>
     [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUseShouldProcessForStateChangingFunctions', '',
         Justification = 'AD writes gated by the per-scenario collision prompt / -Force contract per module precedent.')]
+    [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidUsingConvertToSecureStringWithPlainText', '',
+        Justification = 'The lab user is a deliberately known, low privileged credential.')]
     [CmdletBinding()]
     param (
         [Parameter()]
@@ -68,7 +85,21 @@ function Install-ADCSGoat {
         [string]$Server,
 
         [Parameter()]
-        [switch]$Force
+        [switch]$Force,
+
+        [Parameter()]
+        [switch]$SkipLowPrivUser,
+
+        [Parameter()]
+        [ValidateNotNullOrEmpty()]
+        [string]$LowPrivUserName = 'user',
+
+        [Parameter()]
+        [securestring]$LowPrivUserPassword = (ConvertTo-SecureString -String 'Somepass1' -AsPlainText -Force),
+
+        [Parameter()]
+        [ValidateNotNullOrEmpty()]
+        [string]$PawComputerName = 'ADCSGoat-PAW'
     )
 
     begin {
@@ -82,6 +113,19 @@ function Install-ADCSGoat {
     }
 
     process {
+        # First, so an unreachable PAW fails before any template is written to AD.
+        if (-not $SkipLowPrivUser) {
+            $userParams = @{}
+            if ($PSBoundParameters.ContainsKey('Server')) { $userParams['Server'] = $Server }
+
+            $null = New-AGLowPrivUser -UserName $LowPrivUserName -Password $LowPrivUserPassword @userParams
+
+            $serverPrefix = if ($Server) { "LDAP://$Server/" } else { 'LDAP://' }
+            $rootDSE = New-Object System.DirectoryServices.DirectoryEntry("${serverPrefix}RootDSE")
+            $netbiosName = Get-ADDomainNameFromNc -ConfigurationNC "$($rootDSE.configurationNamingContext)" @userParams
+            Set-AGRdpUserAccess -ComputerName $PawComputerName -Member "$netbiosName\$LowPrivUserName" -Ensure Present
+        }
+
         Deploy-AGEsc1 @scenarioParams
         Deploy-AGEsc4 @scenarioParams
         Deploy-AGEsc3Chain @scenarioParams
