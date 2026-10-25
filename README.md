@@ -85,8 +85,8 @@ See [deployment help](Docs/en-US/Deploy-AGInfrastructure.md) for details. Window
 
 | Command | Description |
 |---------|-------------|
-| `Install-ADCSGoat` | Deploys the full lab: runs all four scenario deploys against the selected CA |
-| `Uninstall-ADCSGoat` | Tears the lab down from the state file, restoring the CA's security descriptor byte-for-byte last |
+| `Install-ADCSGoat` | Deploys the full lab: first creates a low privileged RDP user (`user` / `Somepass1`) for `ADCSGoat-PAW` (needs admin rights on the PAW, locally or over WinRM; `-SkipLowPrivUser`, `-LowPrivUserName`, `-LowPrivUserPassword`, `-PawComputerName` customize it), then runs all four scenario deploys against the selected CA |
+| `Uninstall-ADCSGoat` | Removes the ADCSGoat-created lab user, then tears the lab down from the state file, restoring the CA's security descriptor byte-for-byte last |
 | `Deploy-ADCSGoat` | Runs the deploy entrypoint: selects the CA, prints the preflight report, writes the state file — before any AD write |
 | `Deploy-AGInfrastructure` | Deploys a Hyper-V lab using AutomatedLab |
 | `Deploy-AGEsc1` | ESC1: clones Web Server to "Copy of Web Server", adds Client Auth, grants Domain Users enroll, publishes on the CA |
