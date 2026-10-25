@@ -3,8 +3,6 @@ BeforeAll {
     function Get-LocalGroupMember { param($Group) }
     function Add-LocalGroupMember { param($Group, $Member) }
     function Remove-LocalGroupMember { param($Group, $Member) }
-    function Set-ItemProperty { param($Path, $Name, $Value) }
-    function Enable-NetFirewallRule { param($DisplayGroup) }
     function Invoke-Command { param($ComputerName, $ScriptBlock, $ArgumentList, $ErrorAction) }
     . (Join-Path -Path $PSScriptRoot -ChildPath '..\Private\Set-AGRdpUserAccess.ps1')
 }
@@ -14,18 +12,15 @@ Describe 'Set-AGRdpUserAccess' {
         Mock -CommandName Get-LocalGroupMember -MockWith { }
         Mock -CommandName Add-LocalGroupMember -MockWith { }
         Mock -CommandName Remove-LocalGroupMember -MockWith { }
-        Mock -CommandName Set-ItemProperty -MockWith { }
-        Mock -CommandName Enable-NetFirewallRule -MockWith { }
         Mock -CommandName Invoke-Command -MockWith { }
     }
 
-    It 'Adds the member and enables RDP when running on the target computer' {
+    It 'Adds the member when running on the target computer' {
         Set-AGRdpUserAccess -ComputerName $env:COMPUTERNAME -Member 'ADCS\user' -Ensure Present
 
         Should -Invoke -CommandName Add-LocalGroupMember -Times 1 -ParameterFilter {
             $Group -eq 'Remote Desktop Users' -and $Member -eq 'ADCS\user'
         }
-        Should -Invoke -CommandName Enable-NetFirewallRule -Times 1
         Should -Invoke -CommandName Invoke-Command -Times 0
     }
 

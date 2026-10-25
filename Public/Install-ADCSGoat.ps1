@@ -46,15 +46,17 @@ function Install-ADCSGoat {
 
     .PARAMETER LowPrivUserName
         The sAMAccountName of the low privileged lab user. Defaults to 'user'.
+        Letters, digits, '.', '_' and '-', up to 20 characters.
 
     .PARAMETER LowPrivUserPassword
         The lab user's password. Defaults to the deliberately known 'Somepass1'.
 
     .PARAMETER PawComputerName
         The workstation the lab user may RDP to. Found in AD when omitted: the one
-        computer named '*-PAW'. Zero or several matches stop the install; pass this
-        parameter then. Runs locally when this is the current computer, otherwise
-        through PowerShell remoting, which needs admin rights on the PAW.
+        computer named '*-PAW'. Zero or several matches stop the install after the
+        user is created; pass this parameter then. Runs locally when this is the
+        current computer, otherwise through PowerShell remoting, which needs admin
+        rights on the PAW.
 
     .EXAMPLE
         Install-ADCSGoat
@@ -92,7 +94,7 @@ function Install-ADCSGoat {
         [switch]$SkipLowPrivUser,
 
         [Parameter()]
-        [ValidateNotNullOrEmpty()]
+        [ValidatePattern('^[\w.-]{1,20}$')]
         [string]$LowPrivUserName = 'user',
 
         [Parameter()]
@@ -119,12 +121,12 @@ function Install-ADCSGoat {
             $userParams = @{}
             if ($PSBoundParameters.ContainsKey('Server')) { $userParams['Server'] = $Server }
 
-            # Resolved before the user is created so an unknown PAW fails with nothing written.
+            # Created before the PAW is touched: the user must exist even when the PAW can't be found or reached.
+            $null = New-AGLowPrivUser -UserName $LowPrivUserName -Password $LowPrivUserPassword @userParams
+
             if (-not $PSBoundParameters.ContainsKey('PawComputerName')) {
                 $PawComputerName = Find-AGPawComputer @userParams
             }
-
-            $null = New-AGLowPrivUser -UserName $LowPrivUserName -Password $LowPrivUserPassword @userParams
 
             $serverPrefix = if ($Server) { "LDAP://$Server/" } else { 'LDAP://' }
             $rootDSE = New-Object System.DirectoryServices.DirectoryEntry("${serverPrefix}RootDSE")

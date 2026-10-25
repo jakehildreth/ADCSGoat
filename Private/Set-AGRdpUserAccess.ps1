@@ -5,9 +5,9 @@ function Set-AGRdpUserAccess {
 
     .DESCRIPTION
         Internal helper. Runs locally when ComputerName is this computer,
-        otherwise through PowerShell remoting. Adding also makes sure Remote
-        Desktop is enabled and allowed through the firewall. Both directions
-        are idempotent.
+        otherwise through PowerShell remoting. Only the group membership is
+        changed; AutomatedLab already enables Remote Desktop on lab VMs. Both
+        directions are idempotent.
 
     .PARAMETER ComputerName
         The computer whose local Remote Desktop Users group is changed.
@@ -45,8 +45,6 @@ function Set-AGRdpUserAccess {
 
         if ($Ensure -eq 'Present') {
             if (-not $isMember) { Add-LocalGroupMember -Group $group -Member $Member -ErrorAction Stop }
-            Set-ItemProperty -Path 'HKLM:\SYSTEM\CurrentControlSet\Control\Terminal Server' -Name fDenyTSConnections -Value 0
-            Enable-NetFirewallRule -DisplayGroup 'Remote Desktop'
         } elseif ($isMember) {
             Remove-LocalGroupMember -Group $group -Member $Member -ErrorAction Stop
         }

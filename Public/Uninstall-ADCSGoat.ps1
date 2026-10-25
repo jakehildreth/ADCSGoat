@@ -27,8 +27,9 @@ function Uninstall-ADCSGoat {
         Leaves the low privileged lab user and its PAW RDP access in place.
 
     .PARAMETER LowPrivUserName
-        The low privileged lab user to remove. Defaults to 'user'. It is deleted
-        only when its description carries the ADCSGoat marker.
+        The low privileged lab user to remove. Defaults to 'user'. Letters, digits,
+        '.', '_' and '-', up to 20 characters. The user and its PAW RDP access are
+        removed only when its description carries the ADCSGoat marker.
 
     .PARAMETER PawComputerName
         The workstation whose Remote Desktop Users group the lab user is removed
@@ -57,7 +58,7 @@ function Uninstall-ADCSGoat {
         [switch]$SkipLowPrivUser,
 
         [Parameter()]
-        [ValidateNotNullOrEmpty()]
+        [ValidatePattern('^[\w.-]{1,20}$')]
         [string]$LowPrivUserName = 'user',
 
         [Parameter()]
@@ -78,18 +79,21 @@ function Uninstall-ADCSGoat {
             $userParams = @{}
             if ($PSBoundParameters.ContainsKey('Server')) { $userParams['Server'] = $Server }
 
-            $serverPrefix = if ($Server) { "LDAP://$Server/" } else { 'LDAP://' }
-            $rootDSE = New-Object System.DirectoryServices.DirectoryEntry("${serverPrefix}RootDSE")
-            $netbiosName = Get-ADDomainNameFromNc -ConfigurationNC "$($rootDSE.configurationNamingContext)" @userParams
+            # An account ADCSGoat did not create keeps its RDP access too; Remove-AGLowPrivUser warns about it below.
+            if (Test-AGLowPrivUserOwned -UserName $LowPrivUserName @userParams) {
+                $serverPrefix = if ($Server) { "LDAP://$Server/" } else { 'LDAP://' }
+                $rootDSE = New-Object System.DirectoryServices.DirectoryEntry("${serverPrefix}RootDSE")
+                $netbiosName = Get-ADDomainNameFromNc -ConfigurationNC "$($rootDSE.configurationNamingContext)" @userParams
 
-            # Group membership first: deleting the user first would leave an orphaned SID in the PAW group.
-            try {
-                if (-not $PSBoundParameters.ContainsKey('PawComputerName')) {
-                    $PawComputerName = Find-AGPawComputer @userParams
+                # Group membership first: deleting the user first would leave an orphaned SID in the PAW group.
+                try {
+                    if (-not $PSBoundParameters.ContainsKey('PawComputerName')) {
+                        $PawComputerName = Find-AGPawComputer @userParams
+                    }
+                    Set-AGRdpUserAccess -ComputerName $PawComputerName -Member "$netbiosName\$LowPrivUserName" -Ensure Absent
+                } catch {
+                    Write-Warning "Could not remove $netbiosName\$LowPrivUserName from Remote Desktop Users on the PAW: $($_.Exception.Message)"
                 }
-                Set-AGRdpUserAccess -ComputerName $PawComputerName -Member "$netbiosName\$LowPrivUserName" -Ensure Absent
-            } catch {
-                Write-Warning "Could not remove $netbiosName\$LowPrivUserName from Remote Desktop Users on the PAW: $($_.Exception.Message)"
             }
             $null = Remove-AGLowPrivUser -UserName $LowPrivUserName @userParams
         }
