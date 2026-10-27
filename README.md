@@ -81,12 +81,14 @@ Omitted roles and fields keep their suggestions. Noninteractive mode requires un
 
 See [deployment help](Docs/en-US/Deploy-AGInfrastructure.md) for details. Windows Server security defaults and certificate-mapping enforcement can affect attack demonstrations; configured misconfigurations do not guarantee every historic attack path succeeds.
 
+The CA VM is deployed with web enrollment enabled (the classic `/certsrv` IIS pages, an ESC8 relay target). CEP, CES, and NDES are not deployed: AutomatedLab has no built-in role for them, and standing them up needs a dedicated service account, published RA certificate templates (`CEP Encryption`, `Exchange Enrollment Agent (Offline request)`), and an IIS binding configured after `Install-Lab` finishes.
+
 ## Commands
 
 | Command | Description |
 |---------|-------------|
-| `Install-ADCSGoat` | Deploys the full lab: runs all four scenario deploys against the selected CA |
-| `Uninstall-ADCSGoat` | Tears the lab down from the state file, restoring the CA's security descriptor byte-for-byte last |
+| `Install-ADCSGoat` | Deploys the full lab: first creates a low privileged RDP user (`user` / `Somepass1`) for the lab's PAW, found in AD as the one computer named `*-PAW` (needs admin rights on the PAW, locally or over WinRM; `-SkipLowPrivUser`, `-LowPrivUserName`, `-LowPrivUserPassword`, `-PawComputerName` customize it), then runs all four scenario deploys against the selected CA |
+| `Uninstall-ADCSGoat` | Removes the ADCSGoat-created lab user, then tears the lab down from the state file, restoring the CA's security descriptor byte-for-byte last |
 | `Deploy-ADCSGoat` | Runs the deploy entrypoint: selects the CA, prints the preflight report, writes the state file — before any AD write |
 | `Deploy-AGInfrastructure` | Deploys a Hyper-V lab using AutomatedLab |
 | `Deploy-AGEsc1` | ESC1: clones Web Server to "Copy of Web Server", adds Client Auth, grants Domain Users enroll, publishes on the CA |

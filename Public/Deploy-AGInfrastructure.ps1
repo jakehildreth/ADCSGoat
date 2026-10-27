@@ -59,6 +59,12 @@ function Deploy-AGInfrastructure {
     PSGallery in CurrentUser scope before import. Satisfied requirements do not
     trigger installation. Installation or import failures terminate with
     InfrastructureDependencyUnavailable before VM deployment.
+
+    The CA is deployed with AutomatedLab's native web enrollment option, which
+    installs IIS and the classic /certsrv pages — an ESC8 relay target. CEP,
+    CES, and NDES are not deployed; AutomatedLab has no built-in role for them
+    and each needs a dedicated service account, published RA certificate
+    templates, and an IIS binding configured by hand after `Install-Lab`.
     #>
 
     [CmdletBinding()]
@@ -421,7 +427,9 @@ Privileged Access Workstation IP: <c='em'>$PAWIP</c>
     $caResources = $effectiveResources['CA']
     $pawResources = $effectiveResources['PAW']
     Add-LabMachineDefinition -Name "$Name-DC" -Roles RootDC -IpAddress $DCIP @dcResources
-    Add-LabMachineDefinition -Name "$Name-CA" -Roles CaRoot -IpAddress $CAIP @caResources
+    # InstallWebEnrollment enables the classic IIS /certsrv web enrollment pages (an ESC8 relay target).
+    $caRole = Get-LabMachineRoleDefinition -Role CaRoot -Properties @{ InstallWebEnrollment = 'Yes' }
+    Add-LabMachineDefinition -Name "$Name-CA" -Roles $caRole -IpAddress $CAIP @caResources
     Add-LabMachineDefinition -Name "$Name-PAW" -IpAddress $PAWIP @pawResources
 
     Install-Lab
